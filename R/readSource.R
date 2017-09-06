@@ -32,6 +32,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
   cwd <- getwd()
   setwd(getConfig("mainfolder"))
   startinfo <- toolstartmessage("+")
+  on.exit(toolendmessage(startinfo,"-"))
   
   # Does the cache folder exists? (only to be checked if cache is enabled) 
   if(!file.exists(getConfig("cachefolder")) & getConfig("enablecache")) dir.create(getConfig("cachefolder"),recursive = TRUE)
@@ -117,7 +118,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
     
     cwd <- getwd()
     setwd(sourcefolder)
-    functionname <- prepFunctionName(type=type, prefix=prefix)
+    functionname <- prepFunctionName(type=type, prefix=prefix, ignore=ifelse(is.null(subtype),"subtype",NA))
     x <- eval(parse(text=functionname))
     setwd(cwd)
     if(!is.magpie(x)) stop("Output of function \"",functionname,"\" is not a MAgPIE object!")
@@ -138,7 +139,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
   
   # Check whether source folder exists and try do download source data if it is missing
   sourcefolder <- paste0(getConfig("sourcefolder"),"/",type)
-  if(!file.exists(getConfig("sourcefolder"))) stop("Given sourcefolder does not exist. Please check and update your settings with getConfig and setConfig!")
+  if(!file.exists(getConfig("sourcefolder"))) dir.create(getConfig("sourcefolder"), recursive = TRUE)
   if(!file.exists(sourcefolder)) {
     # does a routine exist to download the source data?
     if(type %in% getSources("download")) {
@@ -157,6 +158,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
     x <- .getData(type,subtype,"read")
   }
   id <- attr(x,"id")
+  on.exit(toolendmessage(startinfo,"-",id=id))
   
   if(type %in% getSources("global")) {
     if(nregions(x)>1) stop("Data has more than one region, but is supposed to be global data!")
@@ -166,8 +168,8 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
   x<-clean_magpie(x)
   
   setwd(cwd)
+ 
   
-  toolendmessage(startinfo,"-",id=id)
   return(x)
 }    
     

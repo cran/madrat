@@ -56,6 +56,10 @@
 #'  given vector of files (e.g. readTau, calcTauTotal) or types 
 #'  (e.g. Tau, TauTotal) called by calcOutput or readSource.
 #'  The top level function must always be part of this list.
+#' @param parallel boolean deciding wether madrat should to execute multiple function calls 
+#'  executed with e.g madlapply etc. in parallel mode.
+#'  Make sure that the package \code{\link[parallel]{parallel}} is installed and runs on your machine.
+#' @param nocores  integer number of cores to use for \code{\link[parallel]{clusterApply}} calls
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getConfig}}, \code{\link{getISOlist}}
 #' @examples
@@ -80,6 +84,8 @@ setConfig <- function(regionmapping=NULL,
                       ignorecache = NULL,
                       delete_cache=NULL,
                       diagnostics=NULL,
+                      parallel=NULL,
+                      nocores=NULL,
                       .cfgchecks=TRUE,
                       .verbose=TRUE){
   cfg <- getConfig(raw=TRUE, verbose=.verbose)
@@ -105,8 +111,11 @@ setConfig <- function(regionmapping=NULL,
       if(grepl("folder",x,fixed = TRUE)) {
         if(!is.na(value)) {
           #normalize path value
-          value <-  sub("/$","",normalizePath(value,winslash = "/",mustWork = FALSE))
-          if(!file.exists(value) & x!="outputfolder") stop("Cannot set ", x, " as the directory does not exist!")
+          if(!file.exists(value)) {
+            dir.create(value,recursive = TRUE)
+            if(.verbose) vcat(1,paste("created folder",sub("/$","",normalizePath(value,winslash = "/")),"..."))
+          }
+          value <-  sub("/$","",normalizePath(value,winslash = "/"))
         }
       }
       if(firstsetting)   info <- "Configuration update:"

@@ -36,9 +36,9 @@ retrieveData <- function(model, rev=0, modelfolder=NULL, cachetype="rev", ...) {
  regionscode <- regionscode(regionmapping) 
  
  # save current settings to set back if needed
- forcecache_setting  <- getConfig()$forcecache
- cachefolder_setting <- getConfig()$cachefolder
- 
+ cfg_backup <- getOption("madrat_cfg")
+ on.exit(options("madrat_cfg" = cfg_backup))
+
  collectionname <- paste0(tolower(model), "_", regionscode, "_rev", rev)
  sourcefolder <- paste0(getConfig("mainfolder"), "/output/", collectionname)
  if(!file.exists(paste0(sourcefolder,".tgz"))) {
@@ -50,6 +50,8 @@ retrieveData <- function(model, rev=0, modelfolder=NULL, cachetype="rev", ...) {
    #copy mapping to mapping folder and set config accordingly
    mappath <- toolMappingFile("regional",paste0(regionscode,".csv"),error.missing = FALSE)
    if(!file.exists(mappath)) file.copy(regionmapping,mappath)
+   #copy mapping to output folder
+   try(file.copy(regionmapping, sourcefolder, overwrite = TRUE))
    setConfig(regionmapping=paste0(regionscode,".csv"),
              outputfolder=sourcefolder,
              diagnostics="diagnostics")
@@ -59,7 +61,7 @@ retrieveData <- function(model, rev=0, modelfolder=NULL, cachetype="rev", ...) {
    } else if(cachetype=="rev") {
      cache_tmp <- paste0(getConfig("mainfolder"),"/cache/rev",rev)
    } else if(cachetype=="def") {
-     cache_tmp <-  cachefolder_setting
+     cache_tmp <- getConfig("cachefolder")
    } else {
      stop("Unknown cachetype \"",cachetype,"\"!")
    }
@@ -109,10 +111,8 @@ retrieveData <- function(model, rev=0, modelfolder=NULL, cachetype="rev", ...) {
  # delete new temporary cache folder and set back configutations 
  if(exists("cache_tmp") & getConfig()$delete_cache & cachetype=="tmp") unlink(cache_tmp, recursive=TRUE)
 
- setConfig(cachefolder=cachefolder_setting)
- setConfig(forcecache=forcecache_setting)
  toolendmessage(startinfo)
-
+ 
  cwd <- getwd()
  setwd(sourcefolder)
  trash <- system(paste0("tar -czf ../",collectionname,".tgz"," *"), intern = TRUE)

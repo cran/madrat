@@ -28,7 +28,7 @@ toolendmessage <- function(startdata, level=NULL, id="none") {
   startdata$time2 <- proc.time()
   runtime <- (startdata$time2-startdata$time1)["elapsed"]
   functioncall <-  paste(deparse(sys.call(-1)),collapse="")
-  vcat(1,"Finished",functioncall,"in",runtime,"seconds",level=level)
+  vcat(1,"Exit",functioncall,"in",runtime,"seconds",level=level)
   d <- getConfig("diagnostics")
   if(is.character(d)) {
     filename <- paste0(getConfig("outputfolder"),"/",d,".csv")
@@ -38,6 +38,6 @@ toolendmessage <- function(startdata, level=NULL, id="none") {
       x <- read.table(filename,stringsAsFactors = FALSE, sep=";", header=TRUE, quote = "")
       x <- rbind(x,c(functioncall,FALSE,startdata$time2["elapsed"],runtime,id))
     }
-    write.table(x,filename,row.names = FALSE,quote = FALSE, sep=";")
+    suppressWarnings(try(write.table(x,filename,row.names = FALSE,quote = FALSE, sep=";"), silent=TRUE))
   }
 }

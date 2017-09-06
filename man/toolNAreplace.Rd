@@ -4,24 +4,28 @@
 \alias{toolNAreplace}
 \title{Tool: NA replace}
 \usage{
-toolNAreplace(x, weight, replaceby = 0)
+toolNAreplace(x, weight = NULL, replaceby = 0, val.rm = NULL)
 }
 \arguments{
 \item{x}{data}
 
 \item{weight}{aggregation weight}
 
-\item{replaceby}{value which should be used instead of NA}
+\item{replaceby}{value which should be used instead of NA. Either a single 
+value or a MAgPIE object which can be expanded to the size of x (either same 
+size or with lower dimensionality).}
+
+\item{val.rm}{vector of values that should in addition be removed in x}
 }
 \value{
 a list containing x and weight
 }
 \description{
-Functions removes NAs in x and weight
+Functions removes NAs, NaNs and infinite values in x and weight
 }
 \seealso{
 \code{\link{calcOutput}}
 }
 \author{
-Benjamin Bodirsky
+Benjamin Bodirsky, Jan Philipp Dietrich
 }

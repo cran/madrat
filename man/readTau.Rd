@@ -4,7 +4,7 @@
 \alias{readTau}
 \title{Read Tau}
 \usage{
-readTau(subtype)
+readTau(subtype = "paper")
 }
 \arguments{
 \item{subtype}{Type of Tau data that should be read. Available types are:

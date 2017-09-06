@@ -5,7 +5,7 @@
 \title{toolAggregate}
 \usage{
 toolAggregate(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1,
-  partrel = FALSE)
+  partrel = FALSE, negative_weight = "warn")
 }
 \arguments{
 \item{x}{magclass object that should be (dis-)aggregated}
@@ -15,8 +15,9 @@ A mapping object should contain 2 columns in which each element of x
 is mapped to the category it should belong to after (dis-)aggregation}
 
 \item{weight}{magclass object containing weights which should be considered
-for a weighted aggregation. Please see the "details" section below for more
-information}
+for a weighted aggregation. The provided weight should only contain positive
+values, but does not need to be normalized (any positive number>=0 is allowed). 
+Please see the "details" section below for more information.}
 
 \item{from}{Name of the first column to be used in rel if it is a
 mapping (if not set the first or second column will be used).}
@@ -33,6 +34,10 @@ specified by name of that dimension or position within the given dimension
 \item{partrel}{If set to TRUE allows that the relation matrix does contain
 less entries than x and vice versa. These values without relation are lost
 in the output.}
+
+\item{negative_weight}{Describes how a negative weight should be treated. "allow"
+means that it just should be accepted (dangerous), "warn" returns a warning and
+"stop" will throw an error in case of negative values}
 }
 \value{
 the aggregated data in magclass format
@@ -60,9 +65,6 @@ any weight (than all columns are just summed up) or your set this specific
 weighting column to NA.
 }
 \examples{
-
-# load example data
-data(population_magpie)
 
 # create example mapping
 mapping <- data.frame(from=getRegions(population_magpie),to=rep(c("REG1","REG2"),5))

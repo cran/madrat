@@ -9,7 +9,7 @@ setConfig(regionmapping = NULL, packages = NULL, globalenv = NULL,
   sourcefolder = NULL, cachefolder = NULL, mappingfolder = NULL,
   outputfolder = NULL, pop_threshold = NULL, forcecache = NULL,
   ignorecache = NULL, delete_cache = NULL, diagnostics = NULL,
-  .cfgchecks = TRUE, .verbose = TRUE)
+  parallel = NULL, nocores = NULL, .cfgchecks = TRUE, .verbose = TRUE)
 }
 \arguments{
 \item{regionmapping}{The name of the csv file containing the region mapping
@@ -73,6 +73,12 @@ created by retrieveInput) should be deleted after completion or not.}
 3 diagnostic files will be written if a file name is provided (a csv showing the network 
 of function executions, a log file showing the log and a full log showing the full amount
 of available information.)}
+
+\item{parallel}{boolean deciding wether madrat should to execute multiple function calls 
+executed with e.g madlapply etc. in parallel mode.
+Make sure that the package \code{\link[parallel]{parallel}} is installed and runs on your machine.}
+
+\item{nocores}{integer number of cores to use for \code{\link[parallel]{clusterApply}} calls}
 
 \item{.cfgchecks}{boolean deciding whether the given inputs to setConfig should be checked for
 consistency or just be accepted (latter is only necessary in very rare cases and should not be used

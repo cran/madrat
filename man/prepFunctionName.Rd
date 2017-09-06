@@ -4,7 +4,7 @@
 \alias{prepFunctionName}
 \title{prepFunctionName}
 \usage{
-prepFunctionName(type, prefix = "calc", years = NULL,
+prepFunctionName(type, prefix = "calc", ignore = NULL,
   error_on_missing = TRUE)
 }
 \arguments{
@@ -14,7 +14,7 @@ prepFunctionName(type, prefix = "calc", years = NULL,
 "read" (source read), "correct" (source corrections), "convert" (source conversion to ISO countries),
 "calc" (further calculations), and "full" (collections of calculations)}
 
-\item{years}{which should be provided to the function (if any)}
+\item{ignore}{vector of arguments which should be ignored (not be part of the function call)}
 
 \item{error_on_missing}{boolean deciding whether a missing type should throw an error or return NULL}
 }
