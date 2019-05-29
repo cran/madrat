@@ -5,8 +5,8 @@
 \title{calcOutput}
 \usage{
 calcOutput(type, aggregate = TRUE, file = NULL, years = NULL,
-  round = NULL, destination = NULL, supplementary = FALSE,
-  append = FALSE, na_warning = TRUE, try = FALSE, ...)
+  round = NULL, supplementary = FALSE, append = FALSE,
+  na_warning = TRUE, try = FALSE, ...)
 }
 \arguments{
 \item{type}{output type, e.g. "TauTotal". A list of all available source
@@ -22,11 +22,6 @@ outputfolder as specified in the config.}
 available years are returned.}
 
 \item{round}{A rounding factor. If set to NULL no rounding will occur.}
-
-\item{destination}{The path relative to the main folder of the model to
-which the file should be copied. In the case that the file should be copied
-to more than one destination within the model data should be provided as a
-vector of destinations.}
 
 \item{supplementary}{boolean deciding whether supplementary information such as weight should be
 returned or not. If set to TRUE a list of elements will be returned!}
@@ -61,15 +56,24 @@ The underlying calc-functions are required to provide a list of information back
 \item unit - unit of the provided data
 \item description - a short description of the data
 \item note (optional) - additional notes related to the data
-\item isocountries (optional | default = TRUE) - a boolean indicating whether data is in 
-iso countries or not (the latter will deactivate several features such as aggregation)
+\item isocountries (optional | default = TRUE (mostly) or FALSE (if global)) - a boolean
+indicating whether data is in iso countries or not (the latter will deactivate several 
+features such as aggregation)
 \item mixed_aggregation (optional | default = FALSE) - boolean which allows for mixed 
 aggregation (weighted mean mixed with summations). If set to TRUE weight columns 
-filled with 0 will lead to summation, otherwise they will trigger an error.
+filled with NA will lead to summation, otherwise they will trigger an error.
 \item min (optional) - Minimum value which can appear in the data. If provided calcOutput
 will check whether there are any values below the given threshold and warn in this case
 \item max (optional) - Maximum value which can appear in the data. If provided calcOutput
 will check whether there are any values above the given threshold and warn in this case
+\item aggregationFunction (optional | default = toolAggregate) - Function to be used to 
+aggregate data from country to regions. The function must have the argument \code{x} for 
+the data itself and \code{rel} for the relation mapping between countries and regions and 
+must return the data as magpie object in the spatial resolution as defined in rel.
+\item aggregationArguments (optional) - List of additional, named arguments to be supplied 
+to the aggregation function. In addition to the arguments set here, the function will be 
+supplied with the arguments \code{x}, \code{rel} and if provided/deviating from the default
+also \code{weight} and \code{mixed_aggregation}.
 }
 }
 \examples{
@@ -83,7 +87,6 @@ a <- calcOutput(type="TauTotal")
 }
 \seealso{
 \code{\link{setConfig}}, \code{\link{calcTauTotal}},
-\code{\link{file2destination}},
 }
 \author{
 Jan Philipp Dietrich

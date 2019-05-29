@@ -22,7 +22,6 @@ aggregation.
 calcOutput("TauTotal")
 
 }
-
 }
 \seealso{
 \code{\link{calcOutput}}, \code{\link{readTau}},

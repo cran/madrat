@@ -56,9 +56,6 @@
 #'  given vector of files (e.g. readTau, calcTauTotal) or types 
 #'  (e.g. Tau, TauTotal) called by calcOutput or readSource.
 #'  The top level function must always be part of this list.
-#' @param parallel boolean deciding wether madrat should to execute multiple function calls 
-#'  executed with e.g madlapply etc. in parallel mode.
-#'  Make sure that the package \code{\link[parallel]{parallel}} is installed and runs on your machine.
 #' @param nocores  integer number of cores to use for \code{\link[parallel]{clusterApply}} calls
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getConfig}}, \code{\link{getISOlist}}
@@ -84,7 +81,6 @@ setConfig <- function(regionmapping=NULL,
                       ignorecache = NULL,
                       delete_cache=NULL,
                       diagnostics=NULL,
-                      parallel=NULL,
                       nocores=NULL,
                       .cfgchecks=TRUE,
                       .verbose=TRUE){
@@ -113,7 +109,7 @@ setConfig <- function(regionmapping=NULL,
           #normalize path value
           if(!file.exists(value)) {
             dir.create(value,recursive = TRUE)
-            if(.verbose) vcat(1,paste("created folder",sub("/$","",normalizePath(value,winslash = "/")),"..."))
+            if(.verbose) vcat(-2,paste("created folder",sub("/$","",normalizePath(value,winslash = "/")),"..."), fill=300)
           }
           value <-  sub("/$","",normalizePath(value,winslash = "/"))
         }
@@ -126,6 +122,6 @@ setConfig <- function(regionmapping=NULL,
   }
   options(madrat_cfg = cfg)
   if(!is.null(info) & .verbose) {
-    for(i in info) vcat(1,i)
+    for(i in info) vcat(-2,i)
   }
 }

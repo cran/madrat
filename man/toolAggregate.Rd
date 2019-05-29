@@ -4,8 +4,9 @@
 \alias{toolAggregate}
 \title{toolAggregate}
 \usage{
-toolAggregate(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1,
-  partrel = FALSE, negative_weight = "warn")
+toolAggregate(x, rel, weight = NULL, from = NULL, to = NULL,
+  dim = 1, partrel = FALSE, negative_weight = "warn",
+  mixed_aggregation = FALSE, verbosity = 1)
 }
 \arguments{
 \item{x}{magclass object that should be (dis-)aggregated}
@@ -38,6 +39,13 @@ in the output.}
 \item{negative_weight}{Describes how a negative weight should be treated. "allow"
 means that it just should be accepted (dangerous), "warn" returns a warning and
 "stop" will throw an error in case of negative values}
+
+\item{mixed_aggregation}{boolean which allows for mixed aggregation (weighted 
+mean mixed with summations). If set to TRUE weight columns filled with NA
+will lead to summation.}
+
+\item{verbosity}{Verbosity level of messages coming from the function: -1 = error, 
+0 = warning, 1 = note, 2 = additional information, >2 = no message}
 }
 \value{
 the aggregated data in magclass format
@@ -62,7 +70,7 @@ is 1 this means that the same transformation matrix is applied for all years
 and/or all data columns. In the case that a column should be just summed up
 instead of being calculated as a weighted average you either do not provide
 any weight (than all columns are just summed up) or your set this specific
-weighting column to NA.
+weighting column to NA and mixed_aggregation to TRUE.
 }
 \examples{
 

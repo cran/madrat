@@ -4,7 +4,8 @@
 \alias{toolCountry2isocode}
 \title{toolCountry2isocode}
 \usage{
-toolCountry2isocode(country, warn = TRUE, type = "IEA", mapping = NULL)
+toolCountry2isocode(country, warn = TRUE, type = "IEA",
+  mapping = NULL)
 }
 \arguments{
 \item{country}{A vector of country names}

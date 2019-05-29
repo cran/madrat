@@ -4,7 +4,8 @@
 \alias{toolMappingFile}
 \title{Tool: MappingFile}
 \usage{
-toolMappingFile(type, name, readcsv = FALSE, error.missing = TRUE)
+toolMappingFile(type, name, readcsv = FALSE, error.missing = TRUE,
+  where = "mappingfolder")
 }
 \arguments{
 \item{type}{Mapping type ("regional", or "sectoral")}
@@ -15,6 +16,9 @@ toolMappingFile(type, name, readcsv = FALSE, error.missing = TRUE)
 
 \item{error.missing}{Boolean which decides whether an error is returned if
 the mapping file does not exist or not.}
+
+\item{where}{location to look for the mapping, either "mappingfolder" or
+the name of a package which contains the mapping}
 }
 \value{
 The complete path to the mapping file.

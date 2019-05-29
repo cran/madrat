@@ -89,6 +89,7 @@ CostaRica;CRI
 Costa_Rica;CRI
 Cote d Ivoire;CIV
 Cote d'Ivoire;CIV
+Cote dIvoire;CIV
 Croatia;HRV
 Cuba;CUB
 Curacao;CUW
@@ -173,6 +174,7 @@ Honduras;HND
 Hong Kong, China;HKG
 Hong Kong;HKG
 Hong-Kong;HKG
+Hong Kong SAR;HKG
 Hungary;HUN
 Iceland;ISL
 India;IND
@@ -207,15 +209,18 @@ Kiribati;KIR
 Kolumbien;COL
 Kongo;COD
 Korea DPR;PRK
+Korea DPR (North);PRK
 Korea Republic;KOR
 Korea, Democratic People's Republic of;PRK
 Korea, Republic of;KOR
 Korea;KOR
 Korea (South);KOR
+Korea RO (South);KOR
 Kuwait;KWT
 Kuweit;KWT
 Kyrgyz Rep.;KGZ
 Kyrgyzstan;KGZ
+Kyrgyz Republic;KGZ
 Lao People's Democratic Republic;LAO
 Lao;LAO
 Laos;LAO
@@ -392,6 +397,7 @@ Tanzania;TZA
 Tanzania_United_Republic_of;TZA
 Thailand;THA
 Timor-Leste;TLS
+Democratic Republic of Timor-Leste;TLS
 Togo;TGO
 Tokelau;TKL
 Tonga;TON
@@ -503,3 +509,145 @@ st kitts-nevis-anguilla;XXX
 tanganyika;XXX
 united korea;XXX
 zanzibar;XXX
+Cabo Verde;CPV
+Cent Afr Rep;CAF
+Congo Rep;COG
+Eq Guinea;GNQ
+Sao Tome Prn;STP
+Westn Sahara;ESH
+Brunei Darsm;BRN
+China HK SAR;HKG
+China Mac SAR;MAC
+Korea Rep;KOR
+Lao PDR;LAO
+Timor Leste;TLS
+Antigua Barb;ATG
+BES Islands;BES
+Br Virgin Is;VGB
+Cayman Is;CYM
+Dominican Rep;DOM
+St Barth;BLM
+St Kitts Nevis;KNA
+St Maarten;SXM
+St Martin;MAF
+St Vincent Gren;VCT
+Trinidad Tobago;TTO
+Turks Caicos;TCA
+US Virgin Is;VIR
+Russian Fed;RUS
+Bosnia Herzg;BIH
+Czechia;CZE
+FYR Macedonia;MKD
+Holy See;VAT
+Kosovo;KOS
+Moldova Rep;MDA
+UK;GBR
+Iran IR;IRN
+Palestine;PSE
+Syrian AR;SYR
+United Arab Em;ARE
+St Pierre Mq;SPM
+Amer Samoa;ASM
+Christmas Is;CXR
+Cocos Is;CCK
+Cook Is;COK
+Fr Polynesia;PYF
+Marshall Is;MHL
+Micronesia;FSM
+New Caledon;NCL
+Norfolk Is;NFK
+Nth Mariana Is;MNP
+Papua N Guin;PNG
+Solomon Is;SLB
+Wallis Fut Is;WLF
+Falklands Malv;FLK
+Fr Guiana;GUF
+albanien;ALB
+algerien;DZA
+äquatorialguinea;GNQ
+aserbaidschan;AZE
+bangladesch;BGD
+bulgarien;BGR
+côte d‘ivoire;CIV
+dänemark;DNK
+iran, islamische republik;IRN
+irland;IRL
+jemen;YEM
+jordanien;JOR
+katar;QAT
+kirgisistan;KGZ
+kongo, demokratische republik;COD
+kongo, republik;COG
+korea, republik;KOR
+kroatien;HRV
+kuba;CUB
+laos, demokratische volksrepublik;LAO
+libanon;LBN
+libysch-arabische dschamahirija;LBY
+marokko;MAR
+mauretanien;MRT
+moldau, republik;MDA
+niederlande;NLD
+palästina;PSE
+papua-neuguinea;PNG
+philippinen;PHL
+polen;POL
+ruanda;RWA
+rumänien;ROU
+russische föderation;RUS
+saudi-arabien;SAU
+serbien;SRB
+seychellen;SYC
+simbabwe;ZWE
+slowakei;SVK
+slowenien;SVN
+syrien, arabische republik;SYR
+tansania, vereinigte republik;TZA
+trinidad und tobago;TTO
+tschad;TCD
+tschechische republik;CZE
+tunesien;TUN
+ungarn;HUN
+venezuela, bolivarische republik;VEN
+vereinigte arabische emirate;ARE
+vereinigte staaten;USA
+vereinigtes königreich;GBR
+weißrussland;BLR
+westsahara;ESH
+zypern;CYP
+falklandinseln (malwinen);FLK
+litauen;LTU
+são tomé und príncipe;STP
+Belgien;BEL
+Bosnien und Herzegowina;BIH
+Armenien;ARM
+Botsuana;BWA
+Swasiland;SWZ
+Korea, Demokratische Volksrepublik;PRK
+Neukaledonien;NCL
+Finnland;FIN
+Zentralafrikanische Republik;CAF
+agypten;EGY
+aquatorialguinea;GNQ
+athiopien;ETH
+danemark;DNK
+gronland;GRL
+osterreich;AUT
+palastina;PSE
+rumanien;ROU
+russische foderation;RUS
+sao tome und principe;STP
+sudafrika;ZAF
+turkei;TUR
+vereinigtes konigreich;GBR
+weissrussland;BLR
+curaçao;CUW
+Hong Kong (China);HKG
+Other non-OECD Asia;IAS
+Republic of Congo;COG
+Aegypten;EGY
+Aethiopien;ETH
+Oesterreich;AUT
+Suedafrika;ZAF
+Tuerkei;TUR
+Groenland;GRL

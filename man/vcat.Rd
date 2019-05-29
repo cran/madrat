@@ -4,7 +4,7 @@
 \alias{vcat}
 \title{Tool: Verbosity Cat}
 \usage{
-vcat(verbosity, ..., level = NULL)
+vcat(verbosity, ..., level = NULL, fill = TRUE, show_prefix = TRUE)
 }
 \arguments{
 \item{verbosity}{The lowest verbosity level for which this message should be
@@ -20,6 +20,16 @@ statements. The hierarchy is preserved for the next vcat executions.
 Currently this setting can have 4 states: NULL (nothing will be changed), 0
 (reset hierarchies), "+" (increase hierarchy level by 1) and "-" (decrease
 hierarchy level by 1).}
+
+\item{fill}{a logical or (positive) numeric controlling how the output is 
+broken into successive lines. If FALSE (default), only newlines created 
+explicitly by "\\n" are printed. Otherwise, the output is broken into lines 
+with print width equal to the option width if fill is TRUE, or the value of 
+fill if this is numeric. Non-positive fill values are ignored, with a warning.}
+
+\item{show_prefix}{a logical defining whether a content specific prefix (e.g. "NOTE")
+should be shown in front of the message or not. If prefix is not shown it will also
+not show up in official statistics.}
 }
 \description{
 Function which returns information based on the verbosity setting

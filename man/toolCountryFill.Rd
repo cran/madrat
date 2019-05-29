@@ -4,8 +4,8 @@
 \alias{toolCountryFill}
 \title{Tool: CountryFill}
 \usage{
-toolCountryFill(x, fill = NA, no_remove_warning = NULL, overwrite = FALSE,
-  ...)
+toolCountryFill(x, fill = NA, no_remove_warning = NULL,
+  overwrite = FALSE, verbosity = 1, ...)
 }
 \arguments{
 \item{x}{MAgPIE object with ISO country codes in the spatial dimension}
@@ -21,6 +21,12 @@ data.}
 
 \item{overwrite}{logical deciding whether existing data should be overwritten,
 if there is a specific mapping provided for that country, or not}
+
+\item{verbosity}{verbosity for information about filling important countries.
+0 = warning will show up (recommended if filling of important countries is not expected), 
+1 = note will show up in reduced log file (default),
+2 = info will show up in extended log file (recommended if filling of important countries
+is not critical and desired).}
 
 \item{...}{Mappings between countries for which the data is missing and 
 countries from which the data should be used instead for these countries 

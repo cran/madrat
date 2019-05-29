@@ -18,7 +18,7 @@
 #' and/or all data columns. In the case that a column should be just summed up
 #' instead of being calculated as a weighted average you either do not provide
 #' any weight (than all columns are just summed up) or your set this specific
-#' weighting column to NA.
+#' weighting column to NA and mixed_aggregation to TRUE.
 #' 
 #' @param x magclass object that should be (dis-)aggregated
 #' @param rel relation matrix, mapping or csv file containing a mapping.
@@ -43,11 +43,18 @@
 #' @param negative_weight Describes how a negative weight should be treated. "allow"
 #' means that it just should be accepted (dangerous), "warn" returns a warning and
 #' "stop" will throw an error in case of negative values
+#' @param mixed_aggregation boolean which allows for mixed aggregation (weighted 
+#' mean mixed with summations). If set to TRUE weight columns filled with NA
+#' will lead to summation.
+#' @param verbosity Verbosity level of messages coming from the function: -1 = error, 
+#' 0 = warning, 1 = note, 2 = additional information, >2 = no message
 #' @return the aggregated data in magclass format
 #' @author Jan Philipp Dietrich, Ulrich Kreidenweis
 #' @export
 #' @importFrom magclass wrap ndata fulldim clean_magpie mselect setCells getCells mbind setComment getNames getNames<- 
 #' @importFrom magclass is.magpie getComment getComment<- dimCode getYears getYears<- getRegionList as.magpie getItems collapseNames 
+#' @importFrom magclass updateMetadata withMetadata
+#' @importFrom utils object.size
 #' @importFrom spam diag.spam as.matrix
 #' @seealso \code{\link{calcOutput}}
 #' @examples
@@ -61,14 +68,23 @@
 #' # weighted aggregation
 #' toolAggregate(population_magpie,mapping, weight=population_magpie)
 
-toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partrel=FALSE, negative_weight="warn") {
+toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partrel=FALSE, negative_weight="warn", mixed_aggregation=FALSE, verbosity=1) {
 
   if(!is.magpie(x)) stop("Input is not a MAgPIE object, x has to be a MAgPIE object!")
   
   comment <- getComment(x)
+  if (withMetadata() && !is.null(getOption("calcHistory_verbosity")) && getOption("calcHistory_verbosity")>1) {
+    if (object.size(sys.call()) < 5000 && as.character(sys.call())[1]=="toolAggregate")  calcHistory <- "update"
+    #Special calcHistory handling necessary for do.call(x$aggregationFunction,x$aggregationArguments) from calcOutput
+    else  calcHistory <- paste0("toolAggregate(x=unknown, rel=unknown, dim=",dim,", mixed_aggregation=",mixed_aggregation,")")
+  } else  calcHistory <- "copy"
+  
   if(!is.numeric(rel) & !("spam" %in% class(rel))) {
     .getAggregationMatrix <- function(rel,from=NULL,to=NULL) {
       
+      if("tbl" %in% class(rel)){
+        rel <- data.frame(rel)
+      }
       if(!(is.matrix(rel) | is.data.frame(rel))) {
         if(!file.exists(rel)) stop("Cannot find given region mapping file!")
         rel <- read.csv(rel, as.is = TRUE, sep = ";")     
@@ -109,7 +125,7 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
     
     # datanames not in relnames
     noagg <- datnames[!datnames %in% colnames(rel)]
-    if(length(noagg)>1) cat("The following entries were not aggregated because there was no respective entry in the relation matrix", noagg, "\n")
+    if(length(noagg)>1) vcat(verbosity, "The following entries were not aggregated because there was no respective entry in the relation matrix", noagg, "\n")
     
     rel <- rel[,common]
     rel <- subset(rel, subset=rowSums(rel)>0)
@@ -117,27 +133,45 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
 
   if(!is.null(weight)) {
     if(!is.magpie(weight)) stop("Weight is not a MAgPIE object, weight has to be a MAgPIE object!")
+    if(anyNA(weight)) {
+      if(!mixed_aggregation) {
+        stop("Weight contains NAs which is only allowed if mixed_aggregation=TRUE!")
+      } else {
+        n <- length(getItems(weight,dim=dim))
+        r <- dimSums(is.na(weight), dim=dim)
+        if(!all(r %in% c(0,n))) stop("Weight contains columns with a mix of NAs and numbers which is not allowed!")
+      }
+    }
     if(nyears(weight)==1) getYears(weight) <- NULL
     weight <- collapseNames(weight)
-    if(negative_weight!="allow" & any(weight<0)) {
+    if(negative_weight!="allow" & any(weight<0, na.rm=TRUE)) {
       if(negative_weight=="warn") {
         warning("Negative numbers in weight. Dangerous, was it really intended?")
       } else {
         stop("Negative numbers in weight. Weight should be positive!")
       }
     }
-    weight2 <- 1/(toolAggregate(weight, rel, from=from, to=to, dim=dim, partrel=partrel) + 10^-100)
+    weight2 <- 1/(toolAggregate(weight, rel, from=from, to=to, dim=dim, partrel=partrel, verbosity=10) + 10^-100)
+    if(mixed_aggregation) {
+      weight2[is.na(weight2)] <- 1
+      weight[is.na(weight)] <- 1
+    }
+    
     if(setequal(getItems(weight, dim=dim), getItems(x, dim=dim))) {
       out <- toolAggregate(x*weight,rel, from=from, to=to, dim=dim, partrel=partrel)*weight2
     } else if(setequal(getItems(weight2, dim=dim), getItems(x, dim=dim))) {
       out <- toolAggregate(x*weight2,rel, from=from, to=to, dim=dim, partrel=partrel)*weight
     } else {
-      stop("Weight does not match data")
+      if(partrel) {
+        stop("Weight does not match data. For partrel=TRUE make sure that the weight is already reduced to the intersect of relation matrix and x!") 
+      } else {
+        stop("Weight does not match data")
+      }
     }
     getComment(out) <- c(comment,paste0("Data aggregated (toolAggregate): ",date()))
-    return(out)
+    return(updateMetadata(out,x,unit="copy",calcHistory=calcHistory))
   }  else {
-  
+    
     #make sure that rel and weight cover a whole dimension (not only a subdimension)
     #expand data if necessary
     #set dim to main dimension afterwards
@@ -150,17 +184,22 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
           return(rel)
         } 
         
-        if(dim<3) stop("Subdimensions of spatial or temporal dimension are currently not supported!")
-        
         subdim <- round((dim-floor(dim))*10)
         maxdim <- nchar(gsub("[^\\.]","",names[1])) + 1
         
         search <- paste0("^(",paste(rep("[^\\.]*\\.",subdim-1),collapse=""),")([^\\.]*)(",paste(rep("\\.[^\\.]*",maxdim-subdim),collapse=""),")$")
         onlynames <- unique(sub(search,"\\2",names))
-        
-        if(length(setdiff(colnames(rel),onlynames))>0) stop("The provided mapping contains entries which could not be found in the data: ",paste(setdiff(colnames(rel),onlynames),collapse=", "))
-        if(length(setdiff(onlynames,colnames(rel)))>0) stop("The provided data set contains entries not covered by the given mapping: ",paste(setdiff(onlynames,colnames(rel)),collapse=", "))
-        
+          
+        if(length(setdiff(colnames(rel),onlynames))>0) {
+          if (length(setdiff(rownames(rel),onlynames))>0) {
+            stop("The provided mapping contains entries which could not be found in the data: ",paste(setdiff(colnames(rel),onlynames),collapse=", "))
+          }else  rel <- t(rel)
+        }else if(length(setdiff(onlynames,colnames(rel)))>0) {
+          if (length(setdiff(onlynames,rownames(rel)))>0) {
+            stop("The provided data set contains entries not covered by the given mapping: ",paste(setdiff(onlynames,colnames(rel)),collapse=", "))
+          }else  rel <- t(rel)
+        }
+          
         tmp <- unique(sub(search,"\\1#|TBR|#\\3",names)) 
         additions <- strsplit(tmp,split="#|TBR|#",fixed=TRUE)
         cnames <- NULL
@@ -178,7 +217,7 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
         }
         return(new_rel[,names])
       }
-      rel <- .expand_rel(rel,getNames(x),dim)
+      rel <- .expand_rel(rel,getItems(x,round(floor(dim))),dim)
       dim <- round(floor(dim))
     }
     
@@ -199,6 +238,17 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
     
     #Aggregate data
     matrix_multiplication <- function(y,x) {
+      if(any(is.infinite(y))) {
+        #Special Inf treatment to prevent that a single Inf in x
+        #is setting the full output to NaN (because 0*Inf is NaN)
+        #Infs are now treated in a way that anything except 0 times Inf
+        #leads to NaN, but 0 times Inf leads to NaN
+        for(i in c(-Inf,Inf)) {
+          j <- (is.infinite(y) & (y == i))
+          x[,j][x[,j]!=0] <- i
+          y[j] <- 1
+        }
+      }
       if(any(is.na(y))) {
         #Special NA treatment to prevent that a single NA in x
         #is setting the full output to NA (because 0*NA is NA)
@@ -211,14 +261,14 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
     }
     out <- apply(x, which(1:3!=dim),matrix_multiplication,rel)
     if(length(dim(out))==2) out <- array(out,dim=c(1,dim(out)),dimnames=c("",dimnames(out)))
-     
+    
     #Write dimnames of aggregated dimension
     if(!is.null(rownames(rel))) {
       reg_out <- rownames(rel)
     } else if(dim==1) {
       reg_in <- getRegionList(x)
       reg_out <- factor(round(rel %*% as.numeric(reg_in)/(rel %*% 
-          rep(1, dim(rel)[2]))))
+                                                            rep(1, dim(rel)[2]))))
       levels(reg_out) <- levels(reg_in)
     } else {
       stop("Missing dimnames for aggregated dimension")
@@ -233,6 +283,7 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
     if(dim==3) out <- wrap(out,map=list(2,3,1))
     
     getComment(out) <- c(comment,paste0("Data aggregated (toolAggregate): ",date()))
-    return(as.magpie(out,spatial=1,temporal=2))
+    out <- as.magpie(out,spatial=1,temporal=2)
+    return(updateMetadata(out,x,unit="copy",calcHistory=calcHistory))
   }
 }

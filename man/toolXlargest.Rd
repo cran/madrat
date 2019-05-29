@@ -4,13 +4,12 @@
 \alias{toolXlargest}
 \title{toolXlargest}
 \usage{
-toolXlargest(range = 1:20, type = "TauTotal", years = NULL,
-  elements = NULL, ...)
+toolXlargest(type, range = 1:20, years = NULL, elements = NULL, ...)
 }
 \arguments{
-\item{range}{the position of the countries in the top X which should be returned.}
-
 \item{type}{calcOutput function that shall be used for ranking}
+
+\item{range}{the position of the countries in the top X which should be returned.}
 
 \item{years}{range of years that shall be summed for ranking.  If NULL, the sum of all years is used.}
 
@@ -27,7 +26,7 @@ Selects the largest countries of a country-level magpie object
 \examples{
 
 \dontrun{ 
-top10 <- toolXlargest(1:10, "TauTotal")
+top10 <- toolXlargest(type="TauTotal",range=1:10)
 }
 
 }

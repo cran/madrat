@@ -4,17 +4,13 @@
 \alias{retrieveData}
 \title{retrieveData}
 \usage{
-retrieveData(model, rev = 0, modelfolder = NULL, cachetype = "rev", ...)
+retrieveData(model, rev = 0, cachetype = "rev", ...)
 }
 \arguments{
 \item{model}{The names of the model for which the data should be provided
 (e.g. "magpie").}
 
 \item{rev}{data revision which should be used/produced (positive numeric).}
-
-\item{modelfolder}{main directory of the model which should receive the
-source data. If set to NULL data will only be produced but not copied to
-any model.}
 
 \item{cachetype}{defines what cache should be used. "rev" points to a cache
 shared by all calculations for the given revision, "def" points to the cache
@@ -26,9 +22,7 @@ folder for the calculations and deletes it afterwards again}
 }
 \description{
 Function to retrieve a predefined collection of calculations for a specific
-regionmapping. If the data is already processed and a modelfolder is
-provided it will just be copied, otherwise it will be created first 
-and eventually copied.
+regionmapping.
 }
 \examples{
 
@@ -38,8 +32,8 @@ retrieveData("magpie",rev=2,regionmapping="regionmappingMAgPIE.csv")
 
 }
 \seealso{
-\code{\link{calcOutput}},\code{\link{setConfig}},\code{\link{file2destination}}
+\code{\link{calcOutput}},\code{\link{setConfig}}
 }
 \author{
-Jan Philipp Dietrich
+Jan Philipp Dietrich, Lavinia Baumstark
 }
