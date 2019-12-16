@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <meta name="author" content="Jan Philipp Dietrich" />
 
-<meta name="date" content="2019-05-29" />
+<meta name="date" content="2019-12-16" />
 
 <title>Data preparation with MADRaT</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
       if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -95,7 +95,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Data preparation with MADRaT</h1>
 <h4 class="author">Jan Philipp Dietrich</h4>
-<h4 class="date">2019-05-29</h4>
+<h4 class="date">2019-12-16</h4>
 
 
 
@@ -216,15 +216,16 @@ cfg &lt;-<span class="st"> </span><span class="kw">getConfig</span>()
 <h3>retrieveData</h3>
 <p>When preparing data for a certain purpose it is often the case that not only one but several datasets have to be prepared as a collection of data. This is where <code>retrieveData</code> steps in. It allows to create a collection of datasets and manages their calculation and packaging. The user defined functions matching to the wrapper <code>retrieveData</code> start with <code>full</code> in the name:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">madrat<span class="op">:::</span>fullEXAMPLE
-<span class="co">#&gt; function (rev = 0) </span>
+<span class="co">#&gt; function (rev = 0, dev = &quot;&quot;) </span>
 <span class="co">#&gt; {</span>
 <span class="co">#&gt;     writeLines(&quot;This is a test&quot;, paste0(getConfig(&quot;outputfolder&quot;), </span>
 <span class="co">#&gt;         &quot;/test.txt&quot;))</span>
 <span class="co">#&gt;     file2destination(&quot;test.txt&quot;, &quot;testfolder&quot;)</span>
-<span class="co">#&gt;     if (rev &gt;= 1) {</span>
+<span class="co">#&gt;     if (rev &gt;= 1) </span>
 <span class="co">#&gt;         calcOutput(&quot;TauTotal&quot;, years = 1995, round = 2, file = &quot;fm_tau1995.cs4&quot;, </span>
 <span class="co">#&gt;             destination = &quot;testfolder/input&quot;)</span>
-<span class="co">#&gt;     }</span>
+<span class="co">#&gt;     if (dev == &quot;test&quot;) </span>
+<span class="co">#&gt;         writeLines(&quot;Here you could execute code for a hypothetical development version called \&quot;test\&quot;&quot;)</span>
 <span class="co">#&gt; }</span>
 <span class="co">#&gt; &lt;environment: namespace:madrat&gt;</span></code></pre></div>
 <p>Each function must have the argument <code>rev</code> which contains a revision number. This can be used to package the data differently based on the requested revision of the data. In the given example the calculation “TauTotal” is only performed for revisions greater or equal 1.</p>
@@ -279,6 +280,9 @@ cat &lt;-<span class="st"> </span><span class="cf">function</span>(...) <span cl
 </div>
 </div>
 
+
+
+<!-- code folding -->
 
 
 <!-- dynamically load mathjax for compatibility with self-contained -->

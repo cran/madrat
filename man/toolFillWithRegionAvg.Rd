@@ -4,9 +4,15 @@
 \alias{toolFillWithRegionAvg}
 \title{Tool: FillWithRegionAvg}
 \usage{
-toolFillWithRegionAvg(x, valueToReplace = NA, weight = NULL,
-  callToolCountryFill = FALSE, regionmapping = NULL, verbose = TRUE,
-  warningThreshold = 0.5)
+toolFillWithRegionAvg(
+  x,
+  valueToReplace = NA,
+  weight = NULL,
+  callToolCountryFill = FALSE,
+  regionmapping = NULL,
+  verbose = TRUE,
+  warningThreshold = 0.5
+)
 }
 \arguments{
 \item{x}{MAgPIE object with country codes in the first and time steps in the

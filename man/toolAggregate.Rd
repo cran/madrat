@@ -4,9 +4,19 @@
 \alias{toolAggregate}
 \title{toolAggregate}
 \usage{
-toolAggregate(x, rel, weight = NULL, from = NULL, to = NULL,
-  dim = 1, partrel = FALSE, negative_weight = "warn",
-  mixed_aggregation = FALSE, verbosity = 1)
+toolAggregate(
+  x,
+  rel,
+  weight = NULL,
+  from = NULL,
+  to = NULL,
+  dim = 1,
+  wdim = NULL,
+  partrel = FALSE,
+  negative_weight = "warn",
+  mixed_aggregation = FALSE,
+  verbosity = 1
+)
 }
 \arguments{
 \item{x}{magclass object that should be (dis-)aggregated}
@@ -31,6 +41,10 @@ mapping (if not set the second or third column will be used).}
 (1=spatial,2=temporal,3=data) or if you want to specify a sub dimension
 specified by name of that dimension or position within the given dimension
 (e.g. 3.2 means the 2nd data dimension, 3.8 means the 8th data dimension).}
+
+\item{wdim}{Specifying the according weight dimension as choosen with dim
+for the aggregation object. If set to NULL the function will try to
+automatically detect the dimension.}
 
 \item{partrel}{If set to TRUE allows that the relation matrix does contain
 less entries than x and vice versa. These values without relation are lost

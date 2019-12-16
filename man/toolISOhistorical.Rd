@@ -4,8 +4,12 @@
 \alias{toolISOhistorical}
 \title{Tool: ISOhistorical}
 \usage{
-toolISOhistorical(m, mapping = NULL, additional_mapping = NULL,
-  overwrite = FALSE)
+toolISOhistorical(
+  m,
+  mapping = NULL,
+  additional_mapping = NULL,
+  overwrite = FALSE
+)
 }
 \arguments{
 \item{m}{MAgPIE object with ISO country codes in the spatial dimension}

@@ -4,8 +4,7 @@
 \alias{toolConvertMapping}
 \title{Tool: ConvertMapping}
 \usage{
-toolConvertMapping(name, format = "rda", type = NULL,
-  where = "mappingfolder")
+toolConvertMapping(name, format = "rda", type = NULL, where = "mappingfolder")
 }
 \arguments{
 \item{name}{File name of the mapping file. Supported file types are currently csv (, or ; separated) 

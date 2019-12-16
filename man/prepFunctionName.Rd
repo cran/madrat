@@ -4,8 +4,7 @@
 \alias{prepFunctionName}
 \title{prepFunctionName}
 \usage{
-prepFunctionName(type, prefix = "calc", ignore = NULL,
-  error_on_missing = TRUE)
+prepFunctionName(type, prefix = "calc", ignore = NULL, error_on_missing = TRUE)
 }
 \arguments{
 \item{type}{name of calculation/source}

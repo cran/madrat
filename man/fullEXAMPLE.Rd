@@ -4,10 +4,14 @@
 \alias{fullEXAMPLE}
 \title{fullExample}
 \usage{
-fullEXAMPLE(rev = 0)
+fullEXAMPLE(rev = 0, dev = "")
 }
 \arguments{
-\item{rev}{data revision which should be used as input (positive numeric).
+\item{rev}{data revision which should be used/produced. Format must be compatible to
+\code{\link[base]{numeric_version}}.}
+
+\item{dev}{development suffix to distinguish development versions for the same data
+revision. This can be useful to distinguish parallel lines of development.
 \code{\link{setConfig}} (e.g. for setting the mainfolder if not already set
 properly).}
 }
@@ -18,7 +22,7 @@ or for testing the basic functionality
 \examples{
 
 \dontrun{ 
-retrieveData("Test",rev=12,regionmapping="regionmappingH12.csv")
+retrieveData("example", rev="2.1.2", dev="test", regionmapping="regionmappingH12.csv")
 }
 
 }

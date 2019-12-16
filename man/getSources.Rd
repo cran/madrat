@@ -4,8 +4,11 @@
 \alias{getSources}
 \title{getSources}
 \usage{
-getSources(type = NULL, packages = getConfig("packages"),
-  globalenv = getConfig("globalenv"))
+getSources(
+  type = NULL,
+  packages = getConfig("packages"),
+  globalenv = getConfig("globalenv")
+)
 }
 \arguments{
 \item{type}{Type of source, either set to "global" "regional", "download", "correct" or

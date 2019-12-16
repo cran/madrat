@@ -4,8 +4,13 @@
 \alias{toolGetMapping}
 \title{Tool: GetMapping}
 \usage{
-toolGetMapping(name, type = NULL, where = "mappingfolder",
-  error.missing = TRUE, returnPathOnly = FALSE)
+toolGetMapping(
+  name,
+  type = NULL,
+  where = "mappingfolder",
+  error.missing = TRUE,
+  returnPathOnly = FALSE
+)
 }
 \arguments{
 \item{name}{File name of the mapping file. Supported file types are currently csv (, or ; separated) 

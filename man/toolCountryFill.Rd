@@ -4,8 +4,14 @@
 \alias{toolCountryFill}
 \title{Tool: CountryFill}
 \usage{
-toolCountryFill(x, fill = NA, no_remove_warning = NULL,
-  overwrite = FALSE, verbosity = 1, ...)
+toolCountryFill(
+  x,
+  fill = NA,
+  no_remove_warning = NULL,
+  overwrite = FALSE,
+  verbosity = 1,
+  ...
+)
 }
 \arguments{
 \item{x}{MAgPIE object with ISO country codes in the spatial dimension}

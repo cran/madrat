@@ -4,8 +4,13 @@
 \alias{toolMappingFile}
 \title{Tool: MappingFile}
 \usage{
-toolMappingFile(type, name, readcsv = FALSE, error.missing = TRUE,
-  where = "mappingfolder")
+toolMappingFile(
+  type,
+  name,
+  readcsv = FALSE,
+  error.missing = TRUE,
+  where = "mappingfolder"
+)
 }
 \arguments{
 \item{type}{Mapping type ("regional", or "sectoral")}

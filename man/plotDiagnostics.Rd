@@ -4,8 +4,7 @@
 \alias{plotDiagnostics}
 \title{Diagnostics plot}
 \usage{
-plotDiagnostics(filename, scale = "sqrt", cumulate_time = FALSE,
-  png = NULL)
+plotDiagnostics(filename, scale = "sqrt", cumulate_time = FALSE, png = NULL)
 }
 \arguments{
 \item{filename}{path to a diagnostics file as created with the setConfig argument diagnostics}

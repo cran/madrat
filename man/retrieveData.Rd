@@ -4,13 +4,17 @@
 \alias{retrieveData}
 \title{retrieveData}
 \usage{
-retrieveData(model, rev = 0, cachetype = "rev", ...)
+retrieveData(model, rev = 0, dev = "", cachetype = "rev", ...)
 }
 \arguments{
 \item{model}{The names of the model for which the data should be provided
 (e.g. "magpie").}
 
-\item{rev}{data revision which should be used/produced (positive numeric).}
+\item{rev}{data revision which should be used/produced. Format must be compatible to
+\code{\link[base]{numeric_version}}.}
+
+\item{dev}{development suffix to distinguish development versions for the same data
+revision. This can be useful to distinguish parallel lines of development.}
 
 \item{cachetype}{defines what cache should be used. "rev" points to a cache
 shared by all calculations for the given revision, "def" points to the cache
@@ -27,7 +31,7 @@ regionmapping.
 \examples{
 
 \dontrun{ 
-retrieveData("magpie",rev=2,regionmapping="regionmappingMAgPIE.csv")
+retrieveData("example", rev="2.1.1", dev="test", regionmapping="regionmappingH12.csv")
 }
 
 }

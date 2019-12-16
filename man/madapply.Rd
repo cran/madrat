@@ -4,8 +4,14 @@
 \alias{madapply}
 \title{madapply}
 \usage{
-madapply(X = NULL, MARGIN = NULL, FUN = NULL, exports = NULL,
-  evals = NULL, ...)
+madapply(
+  X = NULL,
+  MARGIN = NULL,
+  FUN = NULL,
+  exports = NULL,
+  evals = NULL,
+  ...
+)
 }
 \arguments{
 \item{X}{a vector (atomic or list) or an \code{\link{expression}} object. Other objects

@@ -4,8 +4,11 @@
 \alias{getCalculations}
 \title{getCalculations}
 \usage{
-getCalculations(prefix = "calc", packages = getConfig("packages"),
-  globalenv = getConfig("globalenv"))
+getCalculations(
+  prefix = "calc",
+  packages = getConfig("packages"),
+  globalenv = getConfig("globalenv")
+)
 }
 \arguments{
 \item{prefix}{Type of calculations. Available options are "download" (source download), 

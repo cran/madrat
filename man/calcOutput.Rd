@@ -4,9 +4,18 @@
 \alias{calcOutput}
 \title{calcOutput}
 \usage{
-calcOutput(type, aggregate = TRUE, file = NULL, years = NULL,
-  round = NULL, supplementary = FALSE, append = FALSE,
-  na_warning = TRUE, try = FALSE, ...)
+calcOutput(
+  type,
+  aggregate = TRUE,
+  file = NULL,
+  years = NULL,
+  round = NULL,
+  supplementary = FALSE,
+  append = FALSE,
+  na_warning = TRUE,
+  try = FALSE,
+  ...
+)
 }
 \arguments{
 \item{type}{output type, e.g. "TauTotal". A list of all available source
@@ -33,7 +42,8 @@ Works only when a file name is given in the function call.}
 
 \item{try}{if set to TRUE the calculation will only be tried and the script will continue even if
 the underlying calculation failed. If set to TRUE calculation will stop with an error in such a 
-case.}
+case. This setting will be overwritten by the global setting debug=TRUE, in which try will be 
+always interpreted as TRUE.}
 
 \item{...}{Additional settings directly forwarded to the corresponding
 calculation function}

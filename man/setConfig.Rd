@@ -4,12 +4,27 @@
 \alias{setConfig}
 \title{setConfig}
 \usage{
-setConfig(regionmapping = NULL, packages = NULL, globalenv = NULL,
-  enablecache = NULL, verbosity = NULL, mainfolder = NULL,
-  sourcefolder = NULL, cachefolder = NULL, mappingfolder = NULL,
-  outputfolder = NULL, pop_threshold = NULL, forcecache = NULL,
-  ignorecache = NULL, delete_cache = NULL, diagnostics = NULL,
-  nocores = NULL, .cfgchecks = TRUE, .verbose = TRUE)
+setConfig(
+  regionmapping = NULL,
+  packages = NULL,
+  globalenv = NULL,
+  enablecache = NULL,
+  verbosity = NULL,
+  mainfolder = NULL,
+  sourcefolder = NULL,
+  cachefolder = NULL,
+  mappingfolder = NULL,
+  outputfolder = NULL,
+  pop_threshold = NULL,
+  forcecache = NULL,
+  ignorecache = NULL,
+  delete_cache = NULL,
+  diagnostics = NULL,
+  nocores = NULL,
+  debug = NULL,
+  .cfgchecks = TRUE,
+  .verbose = TRUE
+)
 }
 \arguments{
 \item{regionmapping}{The name of the csv file containing the region mapping
@@ -75,6 +90,13 @@ of function executions, a log file showing the log and a full log showing the fu
 of available information.)}
 
 \item{nocores}{integer number of cores to use for \code{\link[parallel]{clusterApply}} calls}
+
+\item{debug}{Boolean which activates a debug mode. In debug mode all calculations will
+be executed with try=TRUE so that calculations do not stop even if the previous calculation failed.
+This can be helpful to get a full picture of errors rather than only seeing the first one. In addition
+debug=TRUE will add the suffix "debug" to the files created to avoid there use in productive runs.
+Furthermore, with debug=TRUE calculations will be rerun even if a corresponding tgz file 
+already exists.}
 
 \item{.cfgchecks}{boolean deciding whether the given inputs to setConfig should be checked for
 consistency or just be accepted (latter is only necessary in very rare cases and should not be used
