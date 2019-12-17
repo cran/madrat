@@ -26,8 +26,8 @@ object as the format in this data list might change in the future!
 }
 \examples{
 
-getISOlist()
-getISOlist("dispensable")
+head(getISOlist())
+head(getISOlist("dispensable"))
 
 }
 \seealso{

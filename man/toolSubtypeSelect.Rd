@@ -23,15 +23,11 @@ consistency checks.
 }
 \examples{
 
-
-subtype <- "extent"
-
 files <-  c(protection="protection.csv",
               production="production.csv",
               extent="forest_extent.csv")
-\dontrun{
-file <- toolSubtypeSelect(subtype,files)
-}
+toolSubtypeSelect("extent",files)
+
 }
 \seealso{
 \code{\link{readSource}}

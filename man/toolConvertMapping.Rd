@@ -27,7 +27,7 @@ Function which converts mapping files between formats
 }
 \examples{
 
-toolGetMapping("regionmappingH12.csv", where="madrat")
+head(toolGetMapping("regionmappingH12.csv", where="madrat"))
 
 }
 \seealso{

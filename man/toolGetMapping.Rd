@@ -36,7 +36,7 @@ Function which retrieves a mapping file
 }
 \examples{
 
-toolGetMapping("regionmappingH12.csv", where="madrat")
+head(toolGetMapping("regionmappingH12.csv", where="madrat"))
 
 }
 \seealso{
