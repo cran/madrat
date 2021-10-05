@@ -4,7 +4,7 @@
 \alias{getConfig}
 \title{getConfig}
 \usage{
-getConfig(option = NULL, raw = FALSE, verbose = TRUE)
+getConfig(option = NULL, raw = FALSE, verbose = TRUE, print = FALSE)
 }
 \arguments{
 \item{option}{The option for which the setting should be returned. If set to
@@ -17,6 +17,8 @@ returned. If raw is set to TRUE settings are returned as they are currently
 stored.}
 
 \item{verbose}{boolean deciding whether status information/updates should be shown or not}
+
+\item{print}{if TRUE and verbose is TRUE a configuration overview will also get printed}
 }
 \value{
 A config list with all settings currently set for the madrat package

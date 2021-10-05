@@ -21,20 +21,26 @@ toolAggregate(
 \arguments{
 \item{x}{magclass object that should be (dis-)aggregated}
 
-\item{rel}{relation matrix, mapping or csv file containing a mapping.
-A mapping object should contain 2 columns in which each element of x
-is mapped to the category it should belong to after (dis-)aggregation}
+\item{rel}{relation matrix, mapping or file containing a mapping in a format
+supported by \code{\link{toolGetMapping}} (currently csv, rds or rda).
+A mapping object consists of any number of columns, where one column contains
+all the elements in x. These elements are mapped to the corresponding values
+in another column, as described below (see parameter 'from').}
 
 \item{weight}{magclass object containing weights which should be considered
 for a weighted aggregation. The provided weight should only contain positive
-values, but does not need to be normalized (any positive number>=0 is allowed). 
+values, but does not need to be normalized (any positive number>=0 is allowed).
 Please see the "details" section below for more information.}
 
-\item{from}{Name of the first column to be used in rel if it is a
-mapping (if not set the first or second column will be used).}
+\item{from}{Name of source column to be used in rel if it is a
+mapping (if not set the first column matching the data will be used).}
 
-\item{to}{Name of the second column to be used in rel if it is a
-mapping (if not set the second or third column will be used).}
+\item{to}{Name of the target column to be used in rel if it is a
+mapping (if not set the column following column \code{from} will be used
+If column \code{from} is the last column, the column before \code{from is
+used}). If data should be aggregated based on more than one column these
+columns can be specified via "+", e.g. "region+global" if the data should
+be aggregated to column regional as well as column global.}
 
 \item{dim}{Specifying the dimension of the magclass object that should be
 (dis-)aggregated. Either specified as an integer
@@ -42,7 +48,7 @@ mapping (if not set the second or third column will be used).}
 specified by name of that dimension or position within the given dimension
 (e.g. 3.2 means the 2nd data dimension, 3.8 means the 8th data dimension).}
 
-\item{wdim}{Specifying the according weight dimension as choosen with dim
+\item{wdim}{Specifying the according weight dimension as chosen with dim
 for the aggregation object. If set to NULL the function will try to
 automatically detect the dimension.}
 
@@ -54,11 +60,11 @@ in the output.}
 means that it just should be accepted (dangerous), "warn" returns a warning and
 "stop" will throw an error in case of negative values}
 
-\item{mixed_aggregation}{boolean which allows for mixed aggregation (weighted 
+\item{mixed_aggregation}{boolean which allows for mixed aggregation (weighted
 mean mixed with summations). If set to TRUE weight columns filled with NA
 will lead to summation.}
 
-\item{verbosity}{Verbosity level of messages coming from the function: -1 = error, 
+\item{verbosity}{Verbosity level of messages coming from the function: -1 = error,
 0 = warning, 1 = note, 2 = additional information, >2 = no message}
 }
 \value{
@@ -83,19 +89,24 @@ that should be (dis-)aggregated or 1. If the temporal and/or data dimension
 is 1 this means that the same transformation matrix is applied for all years
 and/or all data columns. In the case that a column should be just summed up
 instead of being calculated as a weighted average you either do not provide
-any weight (than all columns are just summed up) or your set this specific
+any weight (then all columns are just summed up) or your set this specific
 weighting column to NA and mixed_aggregation to TRUE.
 }
 \examples{
 
 # create example mapping
-mapping <- data.frame(from=getRegions(population_magpie),to=rep(c("REG1","REG2"),5))
-mapping 
+p <- magclass::maxample("pop")
+mapping <- data.frame(from   = getRegions(p),
+  region = rep(c("REG1", "REG2"), 5),
+  global = "GLO")
+mapping
 
 # run aggregation
-toolAggregate(population_magpie,mapping)
+toolAggregate(p, mapping)
 # weighted aggregation
-toolAggregate(population_magpie,mapping, weight=population_magpie)
+toolAggregate(p, mapping, weight = p)
+# combined aggregation across two columns
+toolAggregate(p, mapping, to = "region+global")
 }
 \seealso{
 \code{\link{calcOutput}}

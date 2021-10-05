@@ -9,7 +9,7 @@ toolSubtypeSelect(subtype, files)
 \arguments{
 \item{subtype}{A chosen subtype (character)}
 
-\item{files}{A named vector. The names of the vector correspond to the
+\item{files}{A named vector or list. The names of the vector correspond to the
 allowed subtypes and the content of the vector are the corresponding file
 names.}
 }

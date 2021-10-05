@@ -1,42 +1,47 @@
 #' Tool: Start message
-#' 
+#'
 #' Function writes a process start message and performs some diagnostics
-#' 
-#' 
+#'
+#'
 #' @param level This argument allows to establish a hierarchy of print
 #' statements. The hierarchy is preserved for the next vcat executions.
 #' Currently this setting can have 4 states: NULL (nothing will be changed), 0
 #' (reset hierarchies), "+" (increase hierarchy level by 1) and "-" (decrease
 #' hierarchy level by 1).
+#' @param argumentValues list of the evaluated arguments of the calling function
 #' @return a list containing diagnostic information required by \code{\link{toolendmessage}}
-#' @author Jan Philipp Dietrich
+#' @author Jan Philipp Dietrich, Pascal Führlich
 #' @seealso \code{\link{toolendmessage}}, \code{\link{vcat}}
 #' @examples
-#' 
-#' \dontrun{
-#' tmp <- function(bla=NULL) {
-#'   startinfo <- toolstartmessage("+")
-#'   print(bla)
-#'   toolendmessage(startinfo,"-")
-#'   }
-#' tmp(bla=99)
+#'
+#' innerFunction <- function() {
+#'   startinfo <- madrat:::toolstartmessage(list(argumentsToPrint = 123), "+")
+#'   vcat(1, "inner")
+#'   madrat:::toolendmessage(startinfo, "-")
 #' }
-#' 
+#' outerFunction <- function() {
+#'   startinfo <- madrat:::toolstartmessage(list(), "+")
+#'   vcat(1, "outer")
+#'   innerFunction()
+#'   madrat:::toolendmessage(startinfo, "-")
+#' }
+#' outerFunction()
+toolstartmessage <- function(argumentValues, level = NULL) {
+  functionAndArgs <- as.list(sys.call(-1))
+  theFunction <- functionAndArgs[[1]]
+  nonDefaultArguments <- getNonDefaultArguments(eval(theFunction), argumentValues)
 
-toolstartmessage <- function(level=NULL) {
-  functioncall <- paste(deparse(sys.call(-1)),collapse="")
-  vcat(-2,"Run",functioncall, level=level, fill=300)
-  startdata <- list(time1=proc.time())
-  d <- getConfig("diagnostics")
-  if(is.character(d)) {
-    filename <- paste0(getConfig("outputfolder"),"/",d,".csv")
-    if(!file.exists(filename)) {
-      x <- data.frame(functioncall=functioncall,start=TRUE,time=as.numeric(startdata$time1["elapsed"]),runtime=-1,id="none")
-    } else {
-      x <- read.table(filename,stringsAsFactors = FALSE, sep = ";", header = TRUE, quote = "")
-      x <- rbind(x,c(functioncall,TRUE,startdata$time1["elapsed"],-1,"none"))
-    }
-    suppressWarnings(try(write.table(x,filename,row.names = FALSE, quote = FALSE, sep=";"), silent = TRUE))
+  argsString <- paste0(list(nonDefaultArguments)) # wrap everything in list for nicer string output
+  argsString <- substr(argsString, 6, nchar(argsString) - 1) # remove superfluous list from string
+
+  if (nchar(argsString) <= getConfig("maxLengthLogMessage")) {
+    functionCallString <- paste0(theFunction, "(", argsString, ")", collapse = "")
+    hint <- ""
+  } else {
+    functionCallString <- paste0(deparse(sys.call(-1)), collapse = "")
+    hint <- paste0(" -- to print evaluated arguments: setConfig(maxLengthLogMessage = ", nchar(argsString), ")")
   }
-  return(startdata)
+
+  vcat(1, "Run ", functionCallString, hint, level = level, fill = 300, show_prefix = FALSE)
+  return(list(time1 = proc.time(), functionCallString = functionCallString))
 }

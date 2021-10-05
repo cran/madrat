@@ -4,7 +4,7 @@
 \alias{toolCountry2isocode}
 \title{toolCountry2isocode}
 \usage{
-toolCountry2isocode(country, warn = TRUE, type = "IEA", mapping = NULL)
+toolCountry2isocode(country, warn = TRUE, type = NULL, mapping = NULL)
 }
 \arguments{
 \item{country}{A vector of country names}
@@ -12,7 +12,7 @@ toolCountry2isocode(country, warn = TRUE, type = "IEA", mapping = NULL)
 \item{warn}{whether warnings should be printed now or in the end of the
 whole process as notes}
 
-\item{type}{the name of the source type}
+\item{type}{deprecated and will be removed soon!}
 
 \item{mapping}{additional mappings as a names vector}
 }

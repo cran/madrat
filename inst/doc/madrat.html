@@ -8,53 +8,98 @@
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <meta name="author" content="Jan Philipp Dietrich" />
 
-<meta name="date" content="2019-12-17" />
+<meta name="date" content="2021-10-05" />
 
-<title>Data preparation with MADRaT</title>
+<title>Data preparation with madrat</title>
+
+<script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
 
 
-
-<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
 <style type="text/css" data-origin="pandoc">
-div.sourceCode { overflow-x: auto; }
-table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
-  margin: 0; padding: 0; vertical-align: baseline; border: none; }
-table.sourceCode { width: 100%; line-height: 100%; }
-td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
-td.sourceCode { padding-left: 5px; }
-code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code > span.dt { color: #902000; } /* DataType */
-code > span.dv { color: #40a070; } /* DecVal */
-code > span.bn { color: #40a070; } /* BaseN */
-code > span.fl { color: #40a070; } /* Float */
-code > span.ch { color: #4070a0; } /* Char */
-code > span.st { color: #4070a0; } /* String */
-code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code > span.ot { color: #007020; } /* Other */
-code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code > span.fu { color: #06287e; } /* Function */
-code > span.er { color: #ff0000; font-weight: bold; } /* Error */
-code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-code > span.cn { color: #880000; } /* Constant */
-code > span.sc { color: #4070a0; } /* SpecialChar */
-code > span.vs { color: #4070a0; } /* VerbatimString */
-code > span.ss { color: #bb6688; } /* SpecialString */
-code > span.im { } /* Import */
-code > span.va { color: #19177c; } /* Variable */
-code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code > span.op { color: #666666; } /* Operator */
-code > span.bu { } /* BuiltIn */
-code > span.ex { } /* Extension */
-code > span.pp { color: #bc7a00; } /* Preprocessor */
-code > span.at { color: #7d9029; } /* Attribute */
-code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 
 </style>
 <script>
@@ -81,7 +126,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 
 
-<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+<link rel="stylesheet" href="data:text/css,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" type="text/css" />
 
 
 
@@ -93,40 +139,62 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 
 
-<h1 class="title toc-ignore">Data preparation with MADRaT</h1>
+<h1 class="title toc-ignore">Data preparation with madrat</h1>
 <h4 class="author">Jan Philipp Dietrich</h4>
-<h4 class="date">2019-12-17</h4>
+<h4 class="date">2021-10-05</h4>
 
 
 
-<p>MADRaT is a framework that can help structuring data preparation in R. It splits the data preparation into separate steps with each having distinctive requirements about the returned data. The following tutorial will describe the first steps with the package together with the specific requirements for each calculation step.</p>
+<p>madrat is a framework that can help structuring data preparation in R. It splits the data preparation into separate steps with each having distinctive requirements about the returned data. The following tutorial will describe the first steps with the package together with the specific requirements for each calculation step.</p>
 <div id="setup" class="section level2">
 <h2>Setup</h2>
-<p>MADRaT requires a local directory to store data such as downloaded source data, cache files, and output. Running <code>getConfig</code> in the package for the first time you will be asked for a folder to use and store that setting permanently (if allowed by the user).</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(madrat)
-cfg &lt;-<span class="st"> </span><span class="kw">getConfig</span>()
-<span class="co">#&gt; Initialize madrat config with default settings..</span>
-<span class="co">#&gt; madrat mainfolder for data storage not set! Do you want to set it now? (y/n)</span></code></pre></div>
+<p>madrat requires a local directory to store data such as downloaded source data, cache files, and output. Running <code>getConfig</code> in the package for the first time you will be asked for a folder to use and store that setting permanently (if allowed by the user).</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(madrat)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>cfg <span class="ot">&lt;-</span> <span class="fu">getConfig</span>()</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Initialize madrat config with default settings..</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; madrat mainfolder for data storage not set! Do you want to set it now? (y/n)</span></span></code></pre></div>
 <p>After setting that directory, the package is ready to use. If not stated otherwise in the config, all downloaded source data and created output files can be found in the subdirectories <code>sources/</code> or <code>output/</code> of the main directory, respectectively.</p>
 </div>
 <div id="madrat-framework-components" class="section level2">
-<h2>MADRaT framework components</h2>
-<p>MADRaT splits the process of data preparation into the following components. Note for developers: The source code of each component comes with a MADRaT wrapper function managing the data preparation process and performing some sanity checks on the calculations. The wrapper functions will run user defined functions which are specific to a certain source or calculation.</p>
+<h2>madrat framework components</h2>
+<p>madrat splits the process of data preparation into the following components. Note for developers: The source code of each component comes with a madrat wrapper function managing the data preparation process and performing some sanity checks on the calculations. The wrapper functions will run user defined functions which are specific to a certain source or calculation.</p>
 <div id="downloadsource" class="section level3">
 <h3>downloadSource</h3>
 <p>The first step in data preparation is downloading the source data. <code>downloadSource</code> will create a folder for the given source and set all local file paths correctly. The user defined download function must contain the code required to download the source data in to the local folder the script is run from. An example for such a function is <code>madrat:::downloadTau</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">madrat<span class="op">:::</span>downloadTau
-<span class="co">#&gt; function () </span>
-<span class="co">#&gt; {</span>
-<span class="co">#&gt;     download.file(&quot;http://www.pik-potsdam.de/members/dietrich/tau-data.zip&quot;, </span>
-<span class="co">#&gt;         destfile = &quot;tau-data.zip&quot;)</span>
-<span class="co">#&gt;     unzip(&quot;tau-data.zip&quot;)</span>
-<span class="co">#&gt;     unlink(&quot;tau-data.zip&quot;)</span>
-<span class="co">#&gt; }</span>
-<span class="co">#&gt; &lt;environment: namespace:madrat&gt;</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>madrat<span class="sc">:::</span>downloadTau</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; function (subtype = &quot;paper&quot;) </span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; {</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     settings &lt;- list(paper = list(title = &quot;Tau Factor (cellular, crop-specific)&quot;, </span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         description = &quot;Cellular (0.5deg), crop-specific land use intensity (tau) for 1995 and 2000&quot;, </span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         url = &quot;https://zenodo.org/record/4282581/files/tau-paper.zip&quot;, </span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         doi = &quot;10.5281/zenodo.4282581&quot;), historical = list(title = &quot;Tau Factor (historic trends)&quot;, </span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         description = &quot;Historic land use intensity (tau) development&quot;, </span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         url = &quot;https://zenodo.org/record/4282548/files/tau-historical.zip&quot;, </span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         doi = &quot;10.5281/zenodo.4282548&quot;))</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     meta &lt;- toolSubtypeSelect(subtype, settings)</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     download.file(meta$url, destfile = &quot;tau.zip&quot;, quiet = testthat::is_testing())</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     unzip(&quot;tau.zip&quot;)</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     unlink(&quot;tau.zip&quot;)</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     return(list(url = meta$url, doi = meta$doi, title = meta$title, </span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         description = meta$description, author = person(&quot;Jan Philipp&quot;, </span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             &quot;Dietrich&quot;, email = &quot;dietrich@pik-potsdam.de&quot;, comment = &quot;https://orcid.org/0000-0002-4309-6431&quot;), </span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         unit = &quot;1&quot;, version = &quot;1.0&quot;, release_date = &quot;2012-05-10&quot;, </span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         license = &quot;Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0)&quot;, </span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         reference = bibentry(&quot;Article&quot;, title = &quot;Measuring agricultural land-use intensity - A global analysis using a model-assisted approach&quot;, </span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             author = c(person(&quot;Jan Philipp&quot;, &quot;Dietrich&quot;, email = &quot;dietrich@pik-potsdam.de&quot;, </span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                 comment = &quot;https://orcid.org/0000-0002-4309-6431&quot;), </span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                 person(&quot;Christoph&quot;, &quot;Schmitz&quot;), person(&quot;Christoph&quot;, </span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                   &quot;Mueller&quot;), person(&quot;Marianela&quot;, &quot;Fader&quot;), person(&quot;Hermann&quot;, </span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                   &quot;Lotze-Campen&quot;), person(&quot;Alexander&quot;, &quot;Popp&quot;)), </span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             year = &quot;2012&quot;, journal = &quot;Ecological Modelling&quot;, </span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             volume = &quot;232&quot;, pages = &quot;109-118&quot;, url = &quot;https://doi.org/10.1016/j.ecolmodel.2012.03.002&quot;, </span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             doi = &quot;10.1016/j.ecolmodel.2012.03.002&quot;)))</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; }</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;bytecode: 0x55f00b9d2858&gt;</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;environment: namespace:madrat&gt;</span></span></code></pre></div>
 <p>The name of the user function always has to be a combination of the function type (in this case “download”) and the source or calculation type (in this case “Tau”). The wrapper function always expects the source or calculation type as argument. To run downloadTau through the wrapper, one has to use the following call:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">downloadSource</span>(<span class="st">&quot;Tau&quot;</span>, <span class="dt">overwrite =</span> <span class="ot">TRUE</span>)</code></pre></div>
-<p>Here we set <code>overwrite=TRUE</code> to make sure that the data is downloaded in any case. In the default case <code>overwrite=FALSE</code> data will only be downloaded if there is not already an existing source folder containing the data.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">downloadSource</span>(<span class="st">&quot;Tau&quot;</span>, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p>Here we set <code>overwrite = TRUE</code> to make sure that the data is downloaded in any case. In the default case <code>overwrite = FALSE</code> data will only be downloaded if there is not already an existing source folder containing the data.</p>
 </div>
 <div id="readsource" class="section level3">
 <h3>readSource</h3>
@@ -134,18 +202,19 @@ cfg &lt;-<span class="st"> </span><span class="kw">getConfig</span>()
 <div id="read" class="section level4">
 <h4>read</h4>
 <p>In the first step the data is read into R and converted to a magclass object. Except of the conversion no other modifications are performed and the content of the magclass object should be completely identical to the downloaded data.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">madrat<span class="op">:::</span>readTau
-<span class="co">#&gt; function (subtype = &quot;paper&quot;) </span>
-<span class="co">#&gt; {</span>
-<span class="co">#&gt;     files &lt;- c(paper = &quot;tau_data_1995-2000.mz&quot;, historical = &quot;tau_xref_history_country.mz&quot;)</span>
-<span class="co">#&gt;     file &lt;- toolSubtypeSelect(subtype, files)</span>
-<span class="co">#&gt;     x &lt;- read.magpie(file)</span>
-<span class="co">#&gt;     x[x == -999] &lt;- NA</span>
-<span class="co">#&gt;     return(x)</span>
-<span class="co">#&gt; }</span>
-<span class="co">#&gt; &lt;environment: namespace:madrat&gt;</span></code></pre></div>
-<p>If one wishes to only read in data (without conversion), this can be done by running <code>readSource</code> with the argument <code>convert=FALSE</code>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="kw">readSource</span>(<span class="st">&quot;Tau&quot;</span>, <span class="st">&quot;paper&quot;</span>, <span class="dt">convert=</span><span class="ot">FALSE</span>)</code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>madrat<span class="sc">:::</span>readTau</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; function (subtype = &quot;paper&quot;) </span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; {</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     files &lt;- c(paper = &quot;tau_data_1995-2000.mz&quot;, historical = &quot;tau_xref_history_country.mz&quot;)</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     file &lt;- toolSubtypeSelect(subtype, files)</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     x &lt;- read.magpie(file)</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     x[x == -999] &lt;- NA</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     return(x)</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; }</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;bytecode: 0x55f00b9c92d8&gt;</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;environment: namespace:madrat&gt;</span></span></code></pre></div>
+<p>If one wishes to only read in data (without conversion), this can be done by running <code>readSource</code> with the argument <code>convert = FALSE</code>:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">readSource</span>(<span class="st">&quot;Tau&quot;</span>, <span class="st">&quot;paper&quot;</span>, <span class="at">convert =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
 <p>If a data source comes with several files it is sometimes necessary to specify a subtype. In the given example the source data comes with two datasets (“paper” and “historical”). In the example above the subtype “paper” is chosen.</p>
 </div>
 <div id="correct" class="section level4">
@@ -154,127 +223,140 @@ cfg &lt;-<span class="st"> </span><span class="kw">getConfig</span>()
 </div>
 <div id="convert" class="section level4">
 <h4>convert</h4>
-<p>To allow for flexible aggregation of data to world regions and for compatibility between different data sources MADRaT imposes a standard spatial resolution on all data sources. The used standard is the ISO 3166-1 3-digit country code standard. The function <code>getISOlist()</code> returns a vector of these countries.</p>
-<p>After conversion the dataset should provide numbers for all countries listed in that standard. Te wrapper function <code>readSource</code> will throw an error if countries are missing. It is important that a best guess is used for countries which are not directly provided by the given source as everything else might lead to errors or critical biases in the follow up calculations. Support tools such as <code>toolCountryFill</code> help to interpolate the missing information:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">madrat<span class="op">:::</span>convertTau
-<span class="co">#&gt; function (x) </span>
-<span class="co">#&gt; {</span>
-<span class="co">#&gt;     tau &lt;- x[, , &quot;tau&quot;]</span>
-<span class="co">#&gt;     xref &lt;- x[, , &quot;xref&quot;]</span>
-<span class="co">#&gt;     xref[is.na(tau) | is.nan(tau)] &lt;- 10^-10</span>
-<span class="co">#&gt;     tau[is.na(tau) | is.nan(tau)] &lt;- 1</span>
-<span class="co">#&gt;     if (ncells(x) == 59199) {</span>
-<span class="co">#&gt;         iso_cell &lt;- sysdata$iso_cell</span>
-<span class="co">#&gt;         iso_cell[, 2] &lt;- getCells(x)</span>
-<span class="co">#&gt;         tau &lt;- toolAggregate(tau, rel = iso_cell, weight = collapseNames(xref))</span>
-<span class="co">#&gt;         xref &lt;- toolAggregate(xref, rel = iso_cell)</span>
-<span class="co">#&gt;     }</span>
-<span class="co">#&gt;     tau &lt;- toolCountryFill(tau, fill = 1, TLS = &quot;IDN&quot;, HKG = &quot;CHN&quot;, </span>
-<span class="co">#&gt;         SGP = &quot;CHN&quot;, BHR = &quot;QAT&quot;)</span>
-<span class="co">#&gt;     xref &lt;- toolCountryFill(xref, fill = 0, verbosity = 2)</span>
-<span class="co">#&gt;     return(mbind(tau, xref))</span>
-<span class="co">#&gt; }</span>
-<span class="co">#&gt; &lt;environment: namespace:madrat&gt;</span></code></pre></div>
+<p>To allow for flexible aggregation of data to world regions and for compatibility between different data sources madrat imposes a standard spatial resolution on all data sources. The used standard is the ISO 3166-1 3-digit country code standard. The function <code>getISOlist()</code> returns a vector of these countries.</p>
+<p>After conversion the dataset should provide numbers for all countries listed in that standard. The wrapper function <code>readSource</code> will throw an error if countries are missing. It is important that a best guess is used for countries which are not directly provided by the given source as everything else might lead to errors or critical biases in the follow up calculations. Support tools such as <code>toolCountryFill</code> help to interpolate the missing information:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>madrat<span class="sc">:::</span>convertTau</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; function (x) </span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; {</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     &quot;!# @monitor madrat:::sysdata$iso_cell magclass:::ncells&quot;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     &quot;!# @ignore  madrat:::toolAggregate&quot;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     tau &lt;- x[, , &quot;tau&quot;]</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     xref &lt;- x[, , &quot;xref&quot;]</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     xref[is.na(tau) | is.nan(tau)] &lt;- 10^-10</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     tau[is.na(tau) | is.nan(tau)] &lt;- 1</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     if (ncells(x) == 59199) {</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         iso_cell &lt;- sysdata$iso_cell</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         iso_cell[, 2] &lt;- getCells(x)</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         tau &lt;- toolAggregate(tau, rel = iso_cell, weight = collapseNames(xref))</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         xref &lt;- toolAggregate(xref, rel = iso_cell)</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     }</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     tau &lt;- toolCountryFill(tau, fill = 1, TLS = &quot;IDN&quot;, HKG = &quot;CHN&quot;, </span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         SGP = &quot;CHN&quot;, BHR = &quot;QAT&quot;)</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     xref &lt;- toolCountryFill(xref, fill = 0, verbosity = 2)</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     return(mbind(tau, xref))</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; }</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;bytecode: 0x55f00b9dd728&gt;</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;environment: namespace:madrat&gt;</span></span></code></pre></div>
 <p>Read and convert can be run together by running <code>readSource</code>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="kw">readSource</span>(<span class="st">&quot;Tau&quot;</span>, <span class="st">&quot;paper&quot;</span>)</code></pre></div>
-<p>Same as <code>correct</code>, also the <code>convert</code> function is optional, but not providing it indicates to MADRaT that the resulting data is not on ISO country level and will therefore not be available for aggregation to world regions. Cases in which sources will not have a convert function are datasets without spatial resolution (e.g. providing only a global value) or datasets which should for other reasons not be aggregated to country level. For most cases a <code>convert</code> function should exist.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">readSource</span>(<span class="st">&quot;Tau&quot;</span>, <span class="st">&quot;paper&quot;</span>)</span></code></pre></div>
+<p>Same as <code>correct</code>, also the <code>convert</code> function is optional, but not providing it indicates to madrat that the resulting data is not on ISO country level and will therefore not be available for aggregation to world regions. Cases in which sources will not have a convert function are datasets without spatial resolution (e.g. providing only a global value) or datasets which should for other reasons not be aggregated to country level. For most cases a <code>convert</code> function should exist.</p>
 <p>As the corrections performed in a <code>correct</code> function are usually similar to the interpolations performed in a <code>convert</code> function it is also possible to have these corrections just included in the <code>convert</code> functions. For this reason most sources usually have a <code>read</code> and a <code>convert</code> but not a <code>correct</code> function.</p>
 </div>
 </div>
 <div id="calcoutput" class="section level3">
 <h3>calcOutput</h3>
-<p>Besides reading in a data source and preparing it for further usage, data preparation often requires to extract certain information out of the given data sources. In contrast to the steps before this can also mean blending two or more datasets into one output dataset. For this reason MADRaT distinguishes between the source type, which is always linked to a specific source, and a calculation type, which is always linked to a specific data output.</p>
+<p>Besides reading in a data source and preparing it for further usage, data preparation often requires to extract certain information out of the given data sources. In contrast to the steps before this can also mean blending two or more datasets into one output dataset. For this reason madrat distinguishes between the source type, which is always linked to a specific source, and a calculation type, which is always linked to a specific data output.</p>
 <p>In the given example the data source “Tau” is used to calculate a data output called “TauTotal”.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">madrat<span class="op">:::</span>calcTauTotal
-<span class="co">#&gt; function () </span>
-<span class="co">#&gt; {</span>
-<span class="co">#&gt;     tau &lt;- readSource(&quot;Tau&quot;, &quot;paper&quot;)</span>
-<span class="co">#&gt;     x &lt;- collapseNames(tau[, , &quot;tau.total&quot;])</span>
-<span class="co">#&gt;     weight &lt;- collapseNames(tau[, , &quot;xref.total&quot;])</span>
-<span class="co">#&gt;     return(list(x = x, weight = weight, min = 0, max = 10, unit = &quot;1&quot;, </span>
-<span class="co">#&gt;         description = &quot;Agricultural Land Use Intensity Tau&quot;, </span>
-<span class="co">#&gt;         note = c(&quot;data based on Dietrich J.P., Schmitz C., Müller C., Fader M., Lotze-Campen H., Popp A.,&quot;, </span>
-<span class="co">#&gt;             &quot;Measuring agricultural land-use intensity - A global analysis using a model-assisted approach&quot;, </span>
-<span class="co">#&gt;             &quot;Ecological Modelling, Volume 232, 10 May 2012, Pages 109-118, ISSN 0304-3800, 10.1016/j.ecolmodel.2012.03.002.&quot;, </span>
-<span class="co">#&gt;             &quot;preprint available @ http://edoc.gfz-potsdam.de/pik/display.epl?mode=doc&amp;id=5281&quot;), </span>
-<span class="co">#&gt;         source = bibentry(&quot;Article&quot;, title = &quot;Measuring agricultural land-use intensity - A global analysis using a model-assisted approach&quot;, </span>
-<span class="co">#&gt;             author = c(person(&quot;Jan Philipp&quot;, &quot;Dietrich&quot;), person(&quot;Christoph&quot;, </span>
-<span class="co">#&gt;                 &quot;Schmitz&quot;), person(&quot;Christoph&quot;, &quot;Mueller&quot;), person(&quot;Marianela&quot;, </span>
-<span class="co">#&gt;                 &quot;Fader&quot;), person(&quot;Hermann&quot;, &quot;Lotze-Campen&quot;), </span>
-<span class="co">#&gt;                 person(&quot;Alexander&quot;, &quot;Popp&quot;)), year = &quot;2012&quot;, </span>
-<span class="co">#&gt;             journal = &quot;Ecological Modelling&quot;, volume = &quot;232&quot;, </span>
-<span class="co">#&gt;             pages = &quot;109-118&quot;, url = &quot;http://edoc.gfz-potsdam.de/pik/display.epl?mode=doc&amp;id=5281&quot;, </span>
-<span class="co">#&gt;             doi = &quot;10.1016/j.ecolmodel.2012.03.002&quot;)))</span>
-<span class="co">#&gt; }</span>
-<span class="co">#&gt; &lt;environment: namespace:madrat&gt;</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>madrat<span class="sc">:::</span>calcTauTotal</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; function (source = &quot;paper&quot;) </span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; {</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     tau &lt;- readSource(&quot;Tau&quot;, source)</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     x &lt;- collapseNames(tau[, , &quot;tau.total&quot;])</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     weight &lt;- collapseNames(tau[, , &quot;xref.total&quot;])</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     return(list(x = x, weight = weight, min = 0, max = 10, structure.temporal = &quot;^y[0-9]{4}$&quot;, </span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         structure.spatial = &quot;^[A-Z]{3}$&quot;, unit = &quot;1&quot;, description = &quot;Agricultural Land Use Intensity Tau&quot;, </span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         note = c(&quot;data based on Dietrich J.P., Schmitz C., Müller C., Fader M., Lotze-Campen H., Popp A.,&quot;, </span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             &quot;Measuring agricultural land-use intensity - A global analysis using a model-assisted approach&quot;, </span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             &quot;Ecological Modelling, Volume 232, 10 May 2012, Pages 109-118, ISSN 0304-3800, https://doi.org/10.1016/j.ecolmodel.2012.03.002.&quot;), </span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         source = bibentry(&quot;Article&quot;, title = &quot;Measuring agricultural land-use intensity - A global analysis using a model-assisted approach&quot;, </span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             author = c(person(&quot;Jan Philipp&quot;, &quot;Dietrich&quot;), person(&quot;Christoph&quot;, </span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                 &quot;Schmitz&quot;), person(&quot;Christoph&quot;, &quot;Mueller&quot;), person(&quot;Marianela&quot;, </span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                 &quot;Fader&quot;), person(&quot;Hermann&quot;, &quot;Lotze-Campen&quot;), </span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                 person(&quot;Alexander&quot;, &quot;Popp&quot;)), year = &quot;2012&quot;, </span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             journal = &quot;Ecological Modelling&quot;, volume = &quot;232&quot;, </span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             pages = &quot;109-118&quot;, url = &quot;https://doi.org/10.1016/j.ecolmodel.2012.03.002&quot;, </span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             doi = &quot;10.1016/j.ecolmodel.2012.03.002&quot;)))</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; }</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;bytecode: 0x55f00b9b6868&gt;</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;environment: namespace:madrat&gt;</span></span></code></pre></div>
 <p>calc-Functions always have to return a list of objects with some list entries mandatory and others optional. Mandatory entries are the calculated data object in magclass format <code>x</code>, a <code>weight</code> for aggregating the data from country level to world regions (can be <code>NULL</code> if the data should just be summed up), a short <code>description</code> of the dataset, and the <code>unit</code> of the dataset. Optional statements are for instance a <code>note</code> with additional details about the data or <code>min</code> and <code>max</code> values for the data which will be used for sanity checking the data coming out of the calculation. A full overview about required and/or allowed list entries can be found in the help to <code>calcOutput</code> (<code>?calcOutput</code>).</p>
 <p>An output calculation can be run with the wrapper function <code>calcOutput</code>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="kw">calcOutput</span>(<span class="st">&quot;TauTotal&quot;</span>)</code></pre></div>
-<p>By default it will return the data aggregated to the world regions set in the MADRaT configuration. Adding the argument <code>aggregate=FALSE</code> will return the data in its original resolution and is useful if a calc function is used as source for another calc function.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">calcOutput</span>(<span class="st">&quot;TauTotal&quot;</span>)</span></code></pre></div>
+<p>By default it will return the data aggregated to the world regions set in the madrat configuration. Adding the argument <code>aggregate = FALSE</code> will return the data in its original resolution and is useful if a calc function is used as source for another calc function.</p>
 </div>
 <div id="retrievedata" class="section level3">
 <h3>retrieveData</h3>
 <p>When preparing data for a certain purpose it is often the case that not only one but several datasets have to be prepared as a collection of data. This is where <code>retrieveData</code> steps in. It allows to create a collection of datasets and manages their calculation and packaging. The user defined functions matching to the wrapper <code>retrieveData</code> start with <code>full</code> in the name:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">madrat<span class="op">:::</span>fullEXAMPLE
-<span class="co">#&gt; function (rev = 0, dev = &quot;&quot;) </span>
-<span class="co">#&gt; {</span>
-<span class="co">#&gt;     writeLines(&quot;This is a test&quot;, paste0(getConfig(&quot;outputfolder&quot;), </span>
-<span class="co">#&gt;         &quot;/test.txt&quot;))</span>
-<span class="co">#&gt;     file2destination(&quot;test.txt&quot;, &quot;testfolder&quot;)</span>
-<span class="co">#&gt;     if (rev &gt;= 1) </span>
-<span class="co">#&gt;         calcOutput(&quot;TauTotal&quot;, years = 1995, round = 2, file = &quot;fm_tau1995.cs4&quot;, </span>
-<span class="co">#&gt;             destination = &quot;testfolder/input&quot;)</span>
-<span class="co">#&gt;     if (dev == &quot;test&quot;) </span>
-<span class="co">#&gt;         writeLines(&quot;Here you could execute code for a hypothetical development version called \&quot;test\&quot;&quot;)</span>
-<span class="co">#&gt; }</span>
-<span class="co">#&gt; &lt;environment: namespace:madrat&gt;</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>madrat<span class="sc">:::</span>fullEXAMPLE</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; function (rev = 0, dev = &quot;&quot;) </span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; {</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     writeLines(&quot;This is a test&quot;, paste0(getConfig(&quot;outputfolder&quot;), </span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         &quot;/test.txt&quot;))</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     if (rev &gt;= 1) {</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         calcOutput(&quot;TauTotal&quot;, years = 1995, round = 2, file = &quot;fm_tau1995.cs4&quot;)</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     }</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     if (dev == &quot;test&quot;) {</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         message(&quot;Here you could execute code for a hypothetical development version called \&quot;test\&quot;&quot;)</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     }</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     return(list(tag = &quot;customizable_tag&quot;))</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; }</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;bytecode: 0x55f00b9c1358&gt;</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;environment: namespace:madrat&gt;</span></span></code></pre></div>
 <p>Each function must have the argument <code>rev</code> which contains a revision number. This can be used to package the data differently based on the requested revision of the data. In the given example the calculation “TauTotal” is only performed for revisions greater or equal 1.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">retrieveData</span>(<span class="st">&quot;example&quot;</span>, <span class="dt">rev=</span><span class="dv">1</span>)</code></pre></div>
-<p><code>retrieveData</code> will perform the calculations, create log files and package the produced files together with the log files into a compressed tgz file. The file can be found in the ouput folder of the main directory specified in the MADRaT config.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">retrieveData</span>(<span class="st">&quot;example&quot;</span>, <span class="at">rev =</span> <span class="dv">1</span>)</span></code></pre></div>
+<p><code>retrieveData</code> will perform the calculations, create log files and package the produced files together with the log files into a compressed tgz file. The file can be found in the ouput folder of the main directory specified in the madrat config.</p>
 </div>
+</div>
+<div id="coding-etiquette" class="section level2">
+<h2>Coding etiquette</h2>
+<p>To have everything proper functioning there are some coding rules to follow:</p>
+<ul>
+<li>always call download-/read-/calc-functions type explicitly (e.g. <code>calcOutput(&quot;TauTotal&quot;)</code> instead of <code>type&lt;-&quot;TauTotal&quot;;calcOutput(type)</code>). This is necessary so that the network of functions can be properly detected by the madrat framework</li>
+<li>Use calcOutput, readSource and downloadSource call only from within other functions of that category or from within a retrieve function. Never use these calls in tool functions!</li>
+</ul>
 </div>
 <div id="use-own-functions-with-madrat" class="section level2">
-<h2>Use own functions with MADRaT</h2>
-<p>Own functions can be made available to MADRaT just by sourcing them. They can be made visible to MADRaT by setting the option <code>globalenv=TRUE</code>. The following example shows how that can look like.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(madrat)
-
-<span class="co"># add global environment to madrat search path</span>
-<span class="kw">setConfig</span>(<span class="dt">globalenv=</span><span class="ot">TRUE</span>)
-
-<span class="co"># define simple calc-function</span>
-calcPi &lt;-<span class="st"> </span><span class="cf">function</span>() {
-  out &lt;-<span class="st"> </span><span class="kw">toolCountryFill</span>(<span class="ot">NULL</span>,<span class="dt">fill=</span>pi)
-  <span class="kw">return</span>(<span class="kw">list</span>(<span class="dt">x=</span>out,
-              <span class="dt">weight=</span>out,
-              <span class="dt">unit=</span><span class="st">&quot;1&quot;</span>,
-              <span class="dt">description=</span><span class="st">&quot;Just pi&quot;</span>))
-}
-
-<span class="co"># rund calcPi through wrapper function calcOutput</span>
-<span class="kw">calcOutput</span>(<span class="st">&quot;Pi&quot;</span>)</code></pre></div>
+<h2>Use own functions with madrat</h2>
+<p>Own functions can be made available to madrat just by sourcing them. They can be made visible to madrat by setting the option <code>globalenv = TRUE</code>. The following example shows how that can look like.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(madrat)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co"># add global environment to madrat search path</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">setConfig</span>(<span class="at">globalenv =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co"># define simple calc-function</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>calcPi <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">toolCountryFill</span>(<span class="cn">NULL</span>, <span class="at">fill =</span> pi)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">x =</span> out,</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>              <span class="at">weight =</span> out,</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>              <span class="at">unit =</span> <span class="st">&quot;1&quot;</span>,</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>              <span class="at">description =</span> <span class="st">&quot;Just pi&quot;</span>))</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="co"># run calcPi through wrapper function calcOutput</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="fu">calcOutput</span>(<span class="st">&quot;Pi&quot;</span>)</span></code></pre></div>
 <p>In the given example <code>calcPi</code> is a calculation function which is just assigning the value pi to each country and given each country the same weight for a weighted aggregation (pi). After sourcing the function it can be used through the calc-wrapper function <code>calcOutput(&quot;Pi&quot;)</code>. The result is the aggregated data to the default region set up.</p>
 <p>The same procedure works also for all other functions such as <code>downloadXYZ</code>, <code>readXYZ</code>, <code>correctXYZ</code>, <code>convertXYZ</code> and <code>fullXYZ</code>.</p>
 <div id="create-madrat-based-package" class="section level3">
-<h3>Create MADRaT-based package</h3>
+<h3>Create madrat-based package</h3>
 <p>Since version 1.00 madrat allows to link packages to it and make use of its functionality. For linking madrat (in version &gt;= 1.00) has to be added as a package dependency.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">Depends<span class="op">:</span><span class="st"> </span><span class="kw">madrat</span>(<span class="op">&gt;=</span><span class="st"> </span><span class="fl">1.00</span>)</code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>Depends<span class="sc">:</span> <span class="fu">madrat</span>(<span class="sc">&gt;=</span> <span class="fl">1.00</span>)</span></code></pre></div>
 <p>In addition the following lines of code should be added as <code>madrat.R</code> to the R folder of the package.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">### madrat.R
-<span class="co">#' @importFrom madrat vcat</span>
-
-.onLoad &lt;-<span class="st"> </span><span class="cf">function</span>(libname, pkgname){
-  madrat<span class="op">::</span><span class="kw">setConfig</span>(<span class="dt">packages=</span><span class="kw">c</span>(madrat<span class="op">::</span><span class="kw">getConfig</span>(<span class="st">&quot;packages&quot;</span>),pkgname), 
-                    <span class="dt">.cfgchecks=</span><span class="ot">FALSE</span>, <span class="dt">.verbose=</span><span class="ot">FALSE</span>)
-}
-
-<span class="co">#create an own warning function which redirects calls to vcat (package internal)</span>
-warning &lt;-<span class="st"> </span><span class="cf">function</span>(...) <span class="kw">vcat</span>(<span class="dv">0</span>,...)
-
-<span class="co"># create a own stop function which redirects calls to stop (package internal)</span>
-stop &lt;-<span class="st"> </span><span class="cf">function</span>(...) <span class="kw">vcat</span>(<span class="op">-</span><span class="dv">1</span>,...)
-
-<span class="co"># create an own cat function which redirects calls to cat (package internal)</span>
-cat &lt;-<span class="st"> </span><span class="cf">function</span>(...) <span class="kw">vcat</span>(<span class="dv">1</span>,...)</code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="do">### madrat.R</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @importFrom madrat vcat</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>.onLoad <span class="ot">&lt;-</span> <span class="cf">function</span>(libname, pkgname){</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  madrat<span class="sc">::</span><span class="fu">setConfig</span>(<span class="at">packages =</span> <span class="fu">c</span>(madrat<span class="sc">::</span><span class="fu">getConfig</span>(<span class="st">&quot;packages&quot;</span>), pkgname),</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>                    <span class="at">.cfgchecks =</span> <span class="cn">FALSE</span>, <span class="at">.verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="co">#create an own warning function which redirects calls to vcat (package internal)</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>warning <span class="ot">&lt;-</span> <span class="cf">function</span>(...) <span class="fu">vcat</span>(<span class="dv">0</span>, ...)</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="co"># create an own stop function which redirects calls to stop (package internal)</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>stop <span class="ot">&lt;-</span> <span class="cf">function</span>(...) <span class="fu">vcat</span>(<span class="sc">-</span><span class="dv">1</span>, ...)</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="co"># create an own cat function which redirects calls to cat (package internal)</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>cat <span class="ot">&lt;-</span> <span class="cf">function</span>(...) <span class="fu">vcat</span>(<span class="dv">1</span>, ...)</span></code></pre></div>
 <p>The <code>.onLoad</code> statement makes sure that the package is linked to madrat as soon as it is loaded. The replacements of <code>warning</code>, <code>stop</code> and <code>cat</code> are required to make use of the specific notification system in madrat, which makes for instance sure that all notes, warnings and error messages will show up in the written log files.</p>
 <p>Besides these modifications no further changes are required and functions in the new package will be visible to the <code>madrat</code> wrapper functions.</p>
 </div>

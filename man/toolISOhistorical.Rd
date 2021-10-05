@@ -16,7 +16,8 @@ toolISOhistorical(
 
 \item{mapping}{mapping of historical ISO countries to the standard ISO
 country list. For the default setting (mapping=NULL) the mapping stored as
-supplementary data in the madrat package is used.}
+supplementary data in the madrat package is used. If provided as file the
+mapping needs to contain three columns "fromISO", "toISO" and "lastYear".}
 
 \item{additional_mapping}{vector or list of vectors to provide some specific
 mapping, first the old country code, second the new country code and last

@@ -4,7 +4,7 @@
 \alias{toolendmessage}
 \title{Tool: End message}
 \usage{
-toolendmessage(startdata, level = NULL, id = "none")
+toolendmessage(startdata, level = NULL)
 }
 \arguments{
 \item{startdata}{a list containing diagnostic information provided by \code{\link{toolstartmessage}}}
@@ -14,23 +14,23 @@ statements. The hierarchy is preserved for the next vcat executions.
 Currently this setting can have 4 states: NULL (nothing will be changed), 0
 (reset hierarchies), "+" (increase hierarchy level by 1) and "-" (decrease
 hierarchy level by 1).}
-
-\item{id}{additional id which uniquely identifies the process that just has been finished}
 }
 \description{
 Function writes a process end message and performs some diagnostics
 }
 \examples{
-
-\dontrun{
-tmp <- function(bla=NULL) {
-  startinfo <- toolstartmessage("+")
-  print(bla)
-  toolendmessage(startinfo,"-")
-  }
-tmp(bla=99)
+innerFunction <- function() {
+  startinfo <- madrat:::toolstartmessage(list(argumentsToPrint = 123), "+")
+  vcat(1, "inner")
+  madrat:::toolendmessage(startinfo, "-")
 }
-
+outerFunction <- function() {
+  startinfo <- madrat:::toolstartmessage(list(), "+")
+  vcat(1, "outer")
+  innerFunction()
+  madrat:::toolendmessage(startinfo, "-")
+}
+outerFunction()
 }
 \seealso{
 \code{\link{toolstartmessage}}, \code{\link{vcat}}

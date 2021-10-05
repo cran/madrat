@@ -4,10 +4,10 @@
 \alias{toolXlargest}
 \title{toolXlargest}
 \usage{
-toolXlargest(type, range = 1:20, years = NULL, elements = NULL, ...)
+toolXlargest(x, range = 1:20, years = NULL, elements = NULL, ...)
 }
 \arguments{
-\item{type}{calcOutput function that shall be used for ranking}
+\item{x}{magclass object that shall be used for ranking}
 
 \item{range}{the position of the countries in the top X which should be returned.}
 
@@ -21,13 +21,10 @@ toolXlargest(type, range = 1:20, years = NULL, elements = NULL, ...)
 vector with ISO country codes
 }
 \description{
-Selects the largest countries of a country-level magpie object
+Selects the countries with the highest values in a magpie object
 }
 \examples{
-
-\dontrun{ 
-top10 <- toolXlargest(type="TauTotal",range=1:10)
-}
+toolXlargest(maxample("pop"),range=1:3)
 
 }
 \author{

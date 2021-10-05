@@ -4,14 +4,26 @@
 \alias{regionscode}
 \title{Tool: regionscode}
 \usage{
-regionscode(mapping)
+regionscode(mapping = NULL, label = FALSE, strict = TRUE)
 }
 \arguments{
 \item{mapping}{Either a path to a mapping or an already read-in mapping as
-data.frame.}
+data.frame. If set to NULL (default) the regionscode of the region mapping set in the 
+madrat config will be returned.}
+
+\item{label}{logical deciding whether the corresponding label of a regionscode 
+should be returned instead of the regionscode.}
+
+\item{strict}{If set to TRUE region mappings with mapping to ISO countries with exactly 2 columns 
+or more than 2 colums (if the first colum contains irrelevant information which will be deleted automatically) 
+will be accepted. In this case data will be transformed and even cases with different ordering
+will yield the same regionscode. If set to FALSE all these checks will be ignored and the
+regionscode will be just computed on the object as it is. Please be aware the regionscode will
+differ with strict mode on or off!}
 }
 \value{
-A md5-based regionscode which describes the given mapping
+A md5-based regionscode which describes the given mapping or, if \code{label=TRUE}
+and a corresponding label is available, the label belonging to the regionscode
 }
 \description{
 Given a regionmapping (mapping between ISO countries and regions) the
@@ -28,7 +40,7 @@ regionscode(file)
 
 }
 \seealso{
-\code{\link{fingerprint}}, \code{\link[digest]{digest}}
+\code{\link{toolCodeLabels}}, \code{\link{fingerprint}}, \code{\link[digest]{digest}}
 }
 \author{
 Jan Philipp Dietrich

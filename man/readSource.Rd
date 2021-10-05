@@ -14,8 +14,8 @@ can be retrieved with function \code{\link{getSources}}.}
 source the subtype can be specified with this argument. If a source does not
 have subtypes, subtypes should not be set.}
 
-\item{convert}{Boolean indicating whether input data conversion
-should be done or not. In addition it can be set to "onlycorrect" 
+\item{convert}{Boolean indicating whether input data conversion to
+ISO countries should be done or not. In addition it can be set to "onlycorrect"
 for sources with a separate correctXXX-function.}
 }
 \value{
@@ -29,14 +29,13 @@ wrapper for specific functions designed for the different possible source
 types.
 }
 \examples{
-
-\dontrun{ 
-a <- readSource("Tau","paper")
+\dontrun{
+a <- readSource("Tau", "paper")
 }
 
 }
 \seealso{
-\code{\link{setConfig}}, ' \code{\link{downloadSource}}, 
+\code{\link{setConfig}}, ' \code{\link{downloadSource}},
 \code{\link{readTau}}
 }
 \author{

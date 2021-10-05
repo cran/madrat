@@ -4,14 +4,13 @@
 \alias{toolConvertMapping}
 \title{Tool: ConvertMapping}
 \usage{
-toolConvertMapping(name, format = "rda", type = NULL, where = "mappingfolder")
+toolConvertMapping(name, format = "rds", type = NULL, where = "mappingfolder")
 }
 \arguments{
-\item{name}{File name of the mapping file. Supported file types are currently csv (, or ; separated) 
-and rda (which needs to have the data stored with the object name "data"!). Use code{\link{toolConvertMapping}}
-to convert between both formats}
+\item{name}{File name of the mapping file. Supported file types are currently csv (, or ; separated), rds 
+and rda (which needs to have the data stored with the object name "data"!).}
 
-\item{format}{format it should be converted to. Available is "csv" or "rda".}
+\item{format}{format it should be converted to. Available is "csv", "rds" or "rda".}
 
 \item{type}{Mapping type (e.g. "regional", "cell", or "sectoral"). Can be set to NULL if file
 is not stored in a type specific subfolder}
@@ -19,16 +18,8 @@ is not stored in a type specific subfolder}
 \item{where}{location to look for the mapping, either "mappingfolder" or
 the name of a package which contains the mapping}
 }
-\value{
-the mapping as a data frame
-}
 \description{
 Function which converts mapping files between formats
-}
-\examples{
-
-head(toolGetMapping("regionmappingH12.csv", where="madrat"))
-
 }
 \seealso{
 \code{\link{calcOutput}}, \code{\link{toolConvertMapping}}

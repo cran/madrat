@@ -4,7 +4,10 @@
 \alias{calcTauTotal}
 \title{Calculate total tau}
 \usage{
-calcTauTotal()
+calcTauTotal(source = "paper")
+}
+\arguments{
+\item{source}{data source, either "paper" (default) or "historical".}
 }
 \value{
 Total tau data and corresponding weights as a list of two MAgPIE

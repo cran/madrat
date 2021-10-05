@@ -7,9 +7,9 @@
 toolConditionalReplace(x, conditions, replaceby = 0)
 }
 \arguments{
-\item{x}{magpie object on cellular level}
+\item{x}{magpie object}
 
-\item{conditions}{vector of conditions for values, that should be removed e.g. "== NA", "< 0" (order matters)}
+\item{conditions}{vector of conditions for values, that should be removed e.g. "is.na()", "< 0" (order matters)}
 
 \item{replaceby}{value which should be used instead (can be a vector of same length as conditions as well)}
 }
@@ -17,7 +17,7 @@ toolConditionalReplace(x, conditions, replaceby = 0)
 return changed input data
 }
 \description{
-Sets values (NA, negative, ..) to zero
+Sets values (NA, negative, ..) to value \code{replaceby}
 }
 \author{
 Kristine Karstens

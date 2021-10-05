@@ -21,16 +21,16 @@ second dimension.}
 \item{valueToReplace}{value that denotes missing data. Defaults to NA.}
 
 \item{weight}{MAgPIE object with weights for the weighted average. Must contain
-at least all the countries and years present in x. If no weights are specified, 
+at least all the countries and years present in x. If no weights are specified,
 an unweighted average is performed.}
 
 \item{callToolCountryFill}{Boolean variable indicating whether the list of countries
-should first be filled to the official ISO code country list. Subsequently the 
+should first be filled to the official ISO code country list. Subsequently the
 newly added and previously missing values are filled with the region average.}
 
 \item{regionmapping}{Data frame containing the mapping between countries and regions.
 Expects column names CountryCode and RegionCode. Uses the currently set mapping
-(as returned by toolMappingFile) if no mapping is specified.}
+if no mapping is specified.}
 
 \item{verbose}{Boolean variable indicating if the function should print out what it is doing.
 Can generate a lot of output for a large object.}
@@ -42,22 +42,22 @@ timestep have a missing value, throw a warning.}
 A MAgPIE object with the missing values filled.
 }
 \description{
-This function fills missing values for countries with the (weighted) average 
+This function fills missing values for countries with the (weighted) average
 of the respective region. The average is computed separately for every
 timestep. Currently only inputs with one data dimension are allowed as inputs.
-(If the filling should be performed over multiple data dimensions, call this 
+(If the filling should be performed over multiple data dimensions, call this
 function multiple times and bind the results together with magclass::mbind.)
 }
 \details{
-toolFillWithRegionAvg can be used in conjunction with toolCountryFill() to first 
+toolFillWithRegionAvg can be used in conjunction with toolCountryFill() to first
 fill up the list of countries to the official ISO code country list, and then
 fill values with the regional average (see callToolCountryFill Option).
 }
 \examples{
 
-x <- magclass::new.magpie(cells_and_regions = c('A','B','C','D'), years = c(2000,2005), 
-fill = c(1,NA,3,4,5,6,NA,8))
-rel <- data.frame(CountryCode = c('A','B','C','D'), RegionCode = c('R1','R1','R1','R2'))
+x <- magclass::new.magpie(cells_and_regions = c("A", "B", "C", "D"), years = c(2000, 2005),
+  fill = c(1, NA, 3, 4, 5, 6, NA, 8))
+rel <- data.frame(CountryCode = c("A", "B", "C", "D"), RegionCode = c("R1", "R1", "R1", "R2"))
 xfilled <- toolFillWithRegionAvg(x, regionmapping = rel)
 }
 \author{

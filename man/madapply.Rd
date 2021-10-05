@@ -4,68 +4,14 @@
 \alias{madapply}
 \title{madapply}
 \usage{
-madapply(
-  X = NULL,
-  MARGIN = NULL,
-  FUN = NULL,
-  exports = NULL,
-  evals = NULL,
-  ...
-)
+madapply(...)
 }
 \arguments{
-\item{X}{a vector (atomic or list) or an \code{\link{expression}} object. Other objects
-(including classed objects) will be coerced by base::\code{\link{as.list}}}
-
-\item{MARGIN}{vector specifying the dimensions to use.}
-
-\item{FUN}{the function to be applied to each element of X}
-
-\item{exports}{A list containing a list for each environment which contains imports. Each list contains a character vector and a character or an expression.
-The first listing all Objects and Functions to be Exported. The second lists the associated environment. The environment in which the expression is evaluated is
-the environment of FUN.}
-
-\item{evals}{List of expressions to evaluate. See details for more information}
-
-\item{...}{additional arguments to pass to FUN: beware of partial matching to earlier arguments.}
-}
-\value{
-A list with one entry for each element in X
+\item{...}{placeholder}
 }
 \description{
-{ Wrapper Function that executes multiple function calls on one core using 
-apply or on the supplied number of cores using parLapply if the parallel option is set to TRUE.
-Make sure the package \code{\link[parallel]{parallel}} is installed and runs on your machine before 
-setting parallel to TRUE.
-}
-}
-\details{
-{
-If your are using madlapply insice a calcFunction you don't have to export or evaluate any objects and functions or packages. 
-}
-}
-\examples{
-
-library(madrat)
-library(magclass)
-
-input <- array(2, c(10,5,1))
-wraper <- function(){
-# create a variable which has to be exported to the workers
-# madlapply call 
- resultnopar <- madapply(X=input,MARGIN=c(1,2), FUN=mean, #stating X and FUN
-               exports=list(list(c("input"),expression(environment()))),
-                # listing the objects or function 
-                #to be exported and their origin environments
-              evals=c("magclass" )) # libraries to be evaluated 
-                return(resultnopar)
- }
- 
- res <- wraper()
-
-
-
+This function is defunct and will be completely removed soon.
 }
 \author{
-Stephen Wirth, Jan Philipp Dietrich
+Jan Philipp Dietrich
 }

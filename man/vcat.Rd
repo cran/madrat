@@ -21,10 +21,10 @@ Currently this setting can have 4 states: NULL (nothing will be changed), 0
 (reset hierarchies), "+" (increase hierarchy level by 1) and "-" (decrease
 hierarchy level by 1).}
 
-\item{fill}{a logical or (positive) numeric controlling how the output is 
-broken into successive lines. If FALSE (default), only newlines created 
-explicitly by "\\n" are printed. Otherwise, the output is broken into lines 
-with print width equal to the option width if fill is TRUE, or the value of 
+\item{fill}{a logical or (positive) numeric controlling how the output is
+broken into successive lines. If FALSE (default), only newlines created
+explicitly by "\\n" are printed. Otherwise, the output is broken into lines
+with print width equal to the option width if fill is TRUE, or the value of
 fill if this is numeric. Non-positive fill values are ignored, with a warning.}
 
 \item{show_prefix}{a logical defining whether a content specific prefix (e.g. "NOTE")
@@ -35,11 +35,9 @@ not show up in official statistics.}
 Function which returns information based on the verbosity setting
 }
 \examples{
-
 \dontrun{
-vcat(2,"Hello world!")
+vcat(2, "Hello world!")
 }
-
 }
 \seealso{
 \code{\link{readSource}}

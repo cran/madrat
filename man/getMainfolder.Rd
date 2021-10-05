@@ -4,10 +4,12 @@
 \alias{getMainfolder}
 \title{getMainfolder}
 \usage{
-getMainfolder(verbose = TRUE)
+getMainfolder(verbose = TRUE, .testmode = FALSE)
 }
 \arguments{
 \item{verbose}{boolean deciding whether status information/updates should be shown or not}
+
+\item{.testmode}{boolean switch only relevant for internal testing (will simulate user inputs)}
 }
 \description{
 Functions checks for a global setting of the mainfolder (either by setting the environment

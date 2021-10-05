@@ -4,34 +4,50 @@
 \alias{fingerprint}
 \title{Tool: fingerprint}
 \usage{
-fingerprint(folder, ...)
+fingerprint(name, details = FALSE, graph = NULL, ...)
 }
 \arguments{
-\item{folder}{A folder containing objects for which the fingerprint should
-be created (all files in that folder and all sub-folders will be considered)}
+\item{name}{Name of the function to be analyzed}
 
-\item{...}{R data objects that should be considered for the fingerprint as
-well (e.g. functions, variables,...)}
+\item{details}{Boolean indicating whether additional details in form
+of an attribute with underlying hash information should be added or not}
+
+\item{graph}{A madrat graph as returned by \code{\link{getMadratGraph}}.
+Will be created with \code{\link{getMadratGraph}} if not provided.}
+
+\item{...}{Additional arguments for \code{\link{getMadratGraph}} in case
+that no graph is provided (otherwise ignored)}
 }
 \value{
 A md5-based fingerprint of all provided sources
 }
 \description{
-Function which creates a fingerprint of a folder together with some R
-objects (e.g. functions). Based on the fingerprint it is possible to decide
-whether there were some changes in the given folder and the given objects or
-not. If the fingerprint is unchanged also all files and objects stayed the
-same, otherwise the fingerprint changes
+Function which creates a unique fingerprint for a madrat function based on
+the code of the function itself, other madrat functions which are called by
+this function and of all source folders involved in the process.
+The fingerprint can serve as an indication whether the workflow for the given
+function has been most likely changed, or not. If all involved source folders
+and the code of all involved functions remains the same, also the fingerprint
+will stay the same, otherwise it will change. Hence, it can be to figure out
+whether a cache file can be used for further calculations, or whether the
+calculation should be redone.
+}
+\note{
+For a better performance only the first 300 bytes of each file and the
+corresponding file size is hashed.
+As the fingerprint function only takes madrat-based functions into account
+(e.g. read-functions or calc-functions), but does ignore all other functions
+there might be cases where calculations actually changed, but the fingerprint
+is still the same. In a similar fashion it is possible that the fingerprint
+changes even though the workflow stayed the same
+(as the dependencies are sometimes overestimated).
 }
 \examples{
-
-\dontrun{
-fingerprint(".",ls,c)
-}
+madrat:::fingerprint("toolGetMapping", package = "madrat")
 }
 \seealso{
 \code{\link{readSource}}
 }
 \author{
-Jan Philipp Dietrich
+Jan Philipp Dietrich, Pascal Führlich
 }

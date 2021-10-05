@@ -4,9 +4,11 @@
 \alias{toolstartmessage}
 \title{Tool: Start message}
 \usage{
-toolstartmessage(level = NULL)
+toolstartmessage(argumentValues, level = NULL)
 }
 \arguments{
+\item{argumentValues}{list of the evaluated arguments of the calling function}
+
 \item{level}{This argument allows to establish a hierarchy of print
 statements. The hierarchy is preserved for the next vcat executions.
 Currently this setting can have 4 states: NULL (nothing will be changed), 0
@@ -21,19 +23,22 @@ Function writes a process start message and performs some diagnostics
 }
 \examples{
 
-\dontrun{
-tmp <- function(bla=NULL) {
-  startinfo <- toolstartmessage("+")
-  print(bla)
-  toolendmessage(startinfo,"-")
-  }
-tmp(bla=99)
+innerFunction <- function() {
+  startinfo <- madrat:::toolstartmessage(list(argumentsToPrint = 123), "+")
+  vcat(1, "inner")
+  madrat:::toolendmessage(startinfo, "-")
 }
-
+outerFunction <- function() {
+  startinfo <- madrat:::toolstartmessage(list(), "+")
+  vcat(1, "outer")
+  innerFunction()
+  madrat:::toolendmessage(startinfo, "-")
+}
+outerFunction()
 }
 \seealso{
 \code{\link{toolendmessage}}, \code{\link{vcat}}
 }
 \author{
-Jan Philipp Dietrich
+Jan Philipp Dietrich, Pascal Führlich
 }

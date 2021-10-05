@@ -17,23 +17,23 @@ retrieveData(model, rev = 0, dev = "", cachetype = "rev", ...)
 revision. This can be useful to distinguish parallel lines of development.}
 
 \item{cachetype}{defines what cache should be used. "rev" points to a cache
-shared by all calculations for the given revision, "def" points to the cache
-as defined in the current settings and "tmp" temporarily creates a cache
-folder for the calculations and deletes it afterwards again}
+shared by all calculations for the given revision and sets forcecache to TRUE,
+"def" points to the cache as defined in the current settings and does not change
+forcecache setting.}
 
-\item{...}{(Optional) Settings that should be changed using
-\code{\link{setConfig}} (e.g. regionmapping).}
+\item{...}{(Optional) Settings that should be changed using \code{setConfig}
+(e.g. regionmapping). or arguments which should be forwarded to the corresponding
+fullXYZ function (Please make sure that argument names in full functions do not
+match settings in \code{setConfig}!)}
 }
 \description{
 Function to retrieve a predefined collection of calculations for a specific
 regionmapping.
 }
 \examples{
-
-\dontrun{ 
-retrieveData("example", rev="2.1.1", dev="test", regionmapping="regionmappingH12.csv")
+\dontrun{
+retrieveData("example", rev = "2.1.1", dev = "test", regionmapping = "regionmappingH12.csv")
 }
-
 }
 \seealso{
 \code{\link{calcOutput}},\code{\link{setConfig}}

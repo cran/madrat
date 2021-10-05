@@ -20,15 +20,13 @@ Example for class of fullX functions. Can be used as template for a new function
 or for testing the basic functionality
 }
 \examples{
-
-\dontrun{ 
-retrieveData("example", rev="2.1.2", dev="test", regionmapping="regionmappingH12.csv")
+\dontrun{
+retrieveData("example", rev = "2.1.2", dev = "test", regionmapping = "regionmappingH12.csv")
 }
 
 }
 \seealso{
 \code{\link{readSource}},\code{\link{getCalculations}},\code{\link{calcOutput}},\code{\link{setConfig}}
-,\code{\link{file2destination}}
 }
 \author{
 Jan Philipp Dietrich

@@ -11,7 +11,7 @@ getCalculations(
 )
 }
 \arguments{
-\item{prefix}{Type of calculations. Available options are "download" (source download), 
+\item{prefix}{Type of calculations, vector of types or search term (e.g. "read|calc"). Available options are "download" (source download), 
 "read" (source read), "correct" (source corrections), "convert" (source conversion to ISO countries),
 "calc" (further calculations), and "full" (collections of calculations)}
 

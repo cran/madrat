@@ -10,6 +10,7 @@ toolCountryFill(
   no_remove_warning = NULL,
   overwrite = FALSE,
   verbosity = 1,
+  countrylist = NULL,
   ...
 )
 }
@@ -29,15 +30,18 @@ data.}
 if there is a specific mapping provided for that country, or not}
 
 \item{verbosity}{verbosity for information about filling important countries.
-0 = warning will show up (recommended if filling of important countries is not expected), 
+0 = warning will show up (recommended if filling of important countries is not expected),
 1 = note will show up in reduced log file (default),
 2 = info will show up in extended log file (recommended if filling of important countries
 is not critical and desired).}
 
-\item{...}{Mappings between countries for which the data is missing and 
-countries from which the data should be used instead for these countries 
-(e.g. "HKG"="CHN" if HongKong should receive the value of China). This 
-replacement usually only makes sense for intensive values.}
+\item{countrylist}{character vector of official country names (if other than ISO)}
+
+\item{...}{Mappings between countries for which the data is missing and
+countries from which the data should be used instead for these countries
+(e.g. "HKG"="CHN" if Hong Kong should receive the value of China). This
+replacement usually only makes sense for intensive values. Can be also provided
+as a argument called "map" which contains a named vector of these mappings.}
 }
 \value{
 A MAgPIE object with spatial entries for each country of the
@@ -54,9 +58,8 @@ set to the value of the argument fill.
 \examples{
 
 library(magclass)
-x <- new.magpie("DEU",1994,"bla",0)
-y <- toolCountryFill(x,99)
-
+x <- new.magpie("DEU", 1994, "bla", 0)
+y <- toolCountryFill(x, 99)
 }
 \author{
 Jan Philipp Dietrich
