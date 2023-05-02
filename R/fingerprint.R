@@ -26,7 +26,7 @@
 #' Will be created with \code{\link{getMadratGraph}} if not provided.
 #' @param ... Additional arguments for \code{\link{getMadratGraph}} in case
 #' that no graph is provided (otherwise ignored)
-#' @return A md5-based fingerprint of all provided sources
+#' @return A fingerprint (hash) of all provided sources, or "fingerprintError"
 #' @author Jan Philipp Dietrich, Pascal Führlich
 #' @seealso \code{\link{readSource}}
 #' @examples
@@ -60,7 +60,14 @@ fingerprint <- function(name, details = FALSE, graph = NULL, ...) {
       fingerprintMappings <- fingerprintFiles(attr(dependencies, "mappings"))
       fingerprint <- c(fingerprintFunctions, fingerprintSources, fingerprintMappings, fingerprintMonitored)
       fingerprint <- fingerprint[robustOrder(basename(names(fingerprint)))]
-      out <- digest(unname(fingerprint), algo = getConfig("hash"))
+
+      # Cache files became incompatible when readSource was allowed to return non-magpie objects.
+      # Referring to madrat versions before this change as "old" and after this change as "new" here:
+      # Hashing the string "v2" leads to completely new hashes, and thus cache files with different names.
+      # Old madrat versions will never read/write these new cache files, and new madrat versions will never
+      # read/write cache files created with an old madrat version.
+      out <- digest(list("v2", unname(fingerprint)), algo = getConfig("hash"))
+
       if (details) {
         attr(out, "details") <- fingerprint
         vcat(3, "hash components (", out, "):", show_prefix = FALSE)
@@ -87,7 +94,7 @@ fingerprintCall <- function(name) {
     }
     return(digest(paste(deparse(f), collapse = " "), algo = getConfig("hash")))
   }
-  return(unlist(sapply(name, .tmp)))
+  return(unlist(sapply(name, .tmp))) # nolint
 }
 
 fingerprintFiles <- function(paths) {
@@ -137,22 +144,39 @@ fingerprintFiles <- function(paths) {
     hashCacheFile <- getHashCacheName(path)
 
     if (!is.null(hashCacheFile) && file.exists(hashCacheFile)) {
-      filesCache <- readRDS(hashCacheFile)
-      # keep only entries which are still up-to-date
-      filesCache <- filesCache[filesCache$key %in% files$key, ]
-      files <- files[!(files$key %in% filesCache$key), ]
-      if (nrow(filesCache) == 0) filesCache <- NULL
-      if (nrow(files) == 0) files <- NULL
+      tryResult <- try({
+        filesCache <- readRDS(hashCacheFile)
+        # keep only entries which are still up-to-date
+        filesCache <- filesCache[filesCache$key %in% files$key, ]
+        files <- files[!(files$key %in% filesCache$key), ]
+        if (nrow(filesCache) == 0) filesCache <- NULL
+        if (nrow(files) == 0) files <- NULL
+      }, silent = TRUE)
+      if (inherits(tryResult, "try-error")) {
+        warning("Ignoring corrupt hashCacheFile: ", as.character(tryResult))
+        filesCache <- NULL
+      }
     } else {
       filesCache <- NULL
     }
 
     if (!is.null(files)) {
       # use the first 300 byte of each file and the file sizes for hashing
-      files$hash <- sapply(files$path, digest, algo = getConfig("hash"), file = TRUE, length = 300)
+      files$hash <- vapply(files$path, digest, character(1), algo = getConfig("hash"), file = TRUE, length = 300)
       files$path <- NULL
       if (!is.null(hashCacheFile)) {
-        saveRDS(files, hashCacheFile, version = 2)
+        if (!dir.exists(dirname(hashCacheFile))) {
+          dir.create(dirname(hashCacheFile), recursive = TRUE)
+        }
+        tryCatch({
+          # write to tempfile to avoid corrupt cache files in parallel running preprocessings
+          tempfileName <- paste0(hashCacheFile, Sys.getenv("SLURM_JOB_ID", unset = ""))
+          saveRDS(files, file = tempfileName, compress = getConfig("cachecompression"))
+          file.rename(tempfileName, hashCacheFile)
+          Sys.chmod(hashCacheFile, mode = "0666", use_umask = FALSE)
+        }, error = function(error) {
+          warning("Saving hashCacheFile failed: ", error)
+        })
       }
     }
     files <- rbind(filesCache, files)
@@ -160,5 +184,5 @@ fingerprintFiles <- function(paths) {
     files$key <- NULL
     return(digest(files[robustOrder(files$name), ], algo = getConfig("hash")))
   }
-  return(sapply(paths, .tmp))
+  return(sapply(paths, .tmp)) # nolint
 }

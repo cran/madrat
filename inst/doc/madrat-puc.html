@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Jan Philipp Dietrich, Lavinia Baumstark" />
+
+<meta name="date" content="2023-05-02" />
+
+<title>Portable unagreggated collections (PUCs) in MADRaT</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Portable unagreggated collections (PUCs) in
+MADRaT</h1>
+<h4 class="author">Jan Philipp Dietrich, Lavinia Baumstark</h4>
+<h4 class="date">2023-05-02</h4>
+
+
+
+<p>In some use-cases it can be useful to be able to share an
+unaggregated version of the data collections created by
+madrat::retrieveData, e.g. if a partner wants to be able to compute the
+data collection with a custom aggregation without the need to rerun the
+whole data processing, or if a snapshot of a data collection should be
+taken in a form in which it can be later re-used in other aggregations.
+Portable Unaggregated Collections (PUCs) are the tool to do so.</p>
+<div id="basics" class="section level2">
+<h2>Basics</h2>
+<p>The core idea of madrat is to create data processing workflow in a
+format in which it can be shared and re-used by others. Theoretically
+that means that a user should just need to have a madrat-package in
+order to recompute the resulting data collection. In practice this does
+not always work (e.g. because of problems accessing the source data) or
+might be impratical for certain applications (e.g. because of high
+runtimes and/or hardware requirements of the preprocessing).</p>
+<p>In these instances a solution is to share the code (for transparency
+reasons) along with the computed data collection. A drawback of that
+solution is that the data is already aggregated to a specified regional
+aggregation, limiting the range of application of such an approach. PUCs
+represent an intermediate product in which most of the computations have
+already been performed in advance but the data still needs to be
+aggregated to its final aggregation and (potentially) some less time
+consuming computation steps still have to be done. This can be great for
+portability of the data collection while maintaining some degree of
+freedom when it comes to parametrization of the data processing.</p>
+</div>
+<div id="a-typical-workflow" class="section level2">
+<h2>A typical workflow</h2>
+<p>By default a PUC is created automatically when a data processing is
+launched:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(madrat, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">retrieveData</span>(<span class="st">&quot;EXAMPLE&quot;</span>, <span class="at">rev =</span> <span class="dv">42</span>, <span class="at">puc =</span> <span class="cn">TRUE</span>, <span class="at">extra =</span> <span class="st">&quot;Extra Argument&quot;</span>)</span></code></pre></div>
+<p>In this example the example collection from this package is computed
+in revision 42. The argument <code>puc</code> hereby controls whether
+the processing should also create a puc-file or not. As
+<code>puc = TRUE</code> is the default setting it does not have to be
+mentioned here specifically in order to be computed. The
+<code>extra</code> argument is an additional parameter forwarded to the
+example data collection.</p>
+<p>Running this code will create the aggregated collection in the output
+folder (<code>getConfig(&quot;outputfolder)</code>) as well as the portable,
+unaggregated collection in the puc-folder
+(<code>getConfig(&quot;pucfolder&quot;)</code>).</p>
+<p>In this example the puc file name is
+<code>rev42_extra_example_tag.puc</code> and it consists of different
+components. Every puc-file has the same name structure, which is
+<code>rev&lt;revisionNumber&gt;_&lt;selectableArguments&gt;_&lt;collectionName&gt;_&lt;tag&gt;.puc</code>
+in which <code>&lt;revisionNumber&gt;</code> stands for the revision
+number, <code>&lt;selectableArguments&gt;</code> stands for additional
+arguments (in addition to the regional aggregation) that can be selected
+when aggregating a collection from a puc-file (other arguments cannot be
+changed as they would require a new puc-file),
+<code>&lt;collectionName&gt;</code> stands for the name of the data
+collection and <code>&lt;tag&gt;</code> stands for an optional name tag,
+which can be specified in the corresponding
+<code>full</code>-function.</p>
+<p>In our example we have the puc for the data collection “example” in
+revision 42 and users can select the argument “extra” when aggregating
+data from the puc file.</p>
+<p>Aggregating from a puc-file can now happen in two ways:</p>
+<ul>
+<li><p>on the system where the puc-file has been created it will serve
+as a snapshot and will be re-used as soon as <code>retrieveData</code>
+is run again with same settings except of the ones which can be changed
+in the puc-File
+(e.g. <code>retrieveData(&quot;EXAMPLE&quot;, rev=42, puc = TRUE, extra = &quot;Other Argument&quot;)</code>)</p></li>
+<li><p>when giving the puc to someone else they can aggregate the
+puc-file using the function <code>pucAggregate</code>
+(e.g. <code>pucAggregate(&quot;rev42_extra_example_tag.puc&quot;), extra = &quot;Other Argument&quot;)</code>)</p></li>
+</ul>
+<p>In both cases a new aggregated collection will be written into the
+outputfolder based on the given puc-file.</p>
+</div>
+<div id="making-a-madrat-preprocessing-ready-for-puc-files" class="section level2">
+<h2>Making a madrat preprocessing ready for puc-files</h2>
+<p>While many parts of the puc-file creation happen automatically, some
+specific cases require manual tweaking. By default the cache files of
+the calc-functions called directly by the corresponding full-function
+are being put into the puc-file. This way only the full-function itself
+needs to be re-run without running the underlying calculations as all
+the data of these calculations is already part of the puc-file. However,
+in some instances these top-level cache-files are not the ones which
+should be put into the puc-file (e.g. if these calculations should be
+recomputed every time a puc-file is being aggregated). Whether a file
+should be included in a puc-file can be controlled by the return value
+of a calc-function:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>calcExample <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">return</span>(<span class="fu">list</span>(<span class="at">x =</span> data,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">putInPUC =</span> <span class="cn">FALSE</span>))</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>The calc-function in the shown example uses the return value
+<code>putInPUC = FALSE</code> to overwrite the automatic puc-detection
+and prevent the cache file from being stored in a puc-file. In a similar
+fashion <code>putInPUC = TRUE</code> would make sure that the file
+becomes a part of the resulting puc-file.</p>
+<p>Besides the decision which data should be stored in the puc file it
+is also important to know which arguments can be changed later when
+aggregating the puc-file. This can be controlled via control flags in
+the full-function:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fullEXAMPLE <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">rev =</span> <span class="dv">0</span>, <span class="at">dev =</span> <span class="st">&quot;&quot;</span>, <span class="at">extra =</span> <span class="st">&quot;Example argument&quot;</span>) {</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;!# @pucArguments extra&quot;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">writeLines</span>(extra, <span class="st">&quot;test.txt&quot;</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (rev <span class="sc">&gt;=</span> <span class="dv">1</span>) {</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">calcOutput</span>(<span class="st">&quot;TauTotal&quot;</span>, <span class="at">years =</span> <span class="dv">1995</span>, <span class="at">round =</span> <span class="dv">2</span>, <span class="at">file =</span> <span class="st">&quot;fm_tau1995.cs4&quot;</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (dev <span class="sc">==</span> <span class="st">&quot;test&quot;</span>) {</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">message</span>(<span class="st">&quot;Here you could execute code for a hypothetical development version called </span><span class="sc">\&quot;</span><span class="st">test</span><span class="sc">\&quot;</span><span class="st">&quot;</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># return is optional, tag is appended to the tgz filename, pucTag is appended to the puc filename</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">tag =</span> <span class="st">&quot;customizable_tag&quot;</span>,</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>              <span class="at">pucTag =</span> <span class="st">&quot;tag&quot;</span>))</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>In <code>fullEXAMPLE</code> the control flag
+<code>@pucArguments</code> adds the argument <code>extra</code> to the
+list of arguments which can be changed later when aggregating the puc
+file. The reason why it has been defined as customizable argument is
+that it does not have a direct effect on the cached data but only
+affects the computations in the full-function which are anyway
+recomputed when running <code>pucAggregate</code>.</p>
+<p>Another thing which is set in this example is the return value
+<code>pucTag</code> which is setting the additional name tag showing
+later on in the file name of the puc-file. Here, it is set to “tag”
+which is the reason why our puc-file ends on <code>tag.puc</code>.</p>
+</div>
+<div id="potential-problems" class="section level2">
+<h2>Potential problems</h2>
+<p>While this procedure simplifies some processes it is by no means
+error proof and thereby has to be handled with care. There are potential
+mistakes on the creation side of a puc-file as well as on the user
+side.</p>
+<p>On the creation every faulty configuration of the shown settings
+above will most likely result in a puc-file which is created but
+unusable (e.g. one could set <code>putInPUC</code> to <code>FALSE</code>
+for the calculation <code>TauTotal</code> which would render the
+resulting puc-file unusable). So proper configuration is key to
+functioning puc-files.</p>
+<p>On the user side it is currently mandatory that the system on which
+the puc-file is being used also has the proper package versions of the
+packages involved in the processing of the data. Having a different
+package version locally compared to the version on the system used to
+compute the puc-file might work but can also fail or can lead to
+different results than expected. In the future this problem might get a
+technical solution (by also storing the packages in the appropriate
+versions in the puc-file), but for now it is in the responsibility of
+the user to have the proper package versions installed.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

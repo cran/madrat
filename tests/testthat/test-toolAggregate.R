@@ -1,22 +1,22 @@
-context("Data aggregation")
-
 pm <- magclass::maxample("pop")
 w <- pm
 w[, , ] <- NA
-map <- data.frame(from = getRegions(pm), reg = rep(c("REG1", "REG2"), 5), glo = "GLO")
-map2 <- data.frame(from = getRegions(pm), to = getRegions(pm))
+map <- data.frame(from = getItems(pm, dim = 1.1), reg = rep(c("REG1", "REG2"), 5), glo = "GLO")
+map2 <- data.frame(from = getItems(pm, dim = 1.1), to = getItems(pm, dim = 1.1))
 # Spatial subdimension (trade data) objects
-td <- new.magpie(paste(rep(getRegions(pm), nregions(pm)), rep(getRegions(pm), each = nregions(pm)), sep = "."),
+td <- new.magpie(paste(rep(getItems(pm, dim = 1.1), nregions(pm)), rep(getItems(pm, dim = 1.1), each = nregions(pm)),
+                       sep = "."),
                  getYears(pm), getNames(pm), pm)
-tdeach <- new.magpie(paste(rep(getRegions(pm), each = nregions(pm)), rep(getRegions(pm), nregions(pm)), sep = "."),
+tdeach <- new.magpie(paste(rep(getItems(pm, dim = 1.1), each = nregions(pm)),
+                           rep(getItems(pm, dim = 1.1), nregions(pm)), sep = "."),
                      getYears(pm), getNames(pm), pm)
-rel <- data.frame(from = getRegions(pm), to = rep(c("REG1", "REG2"), each = 5))
+rel <- data.frame(from = getItems(pm, dim = 1.1), to = rep(c("REG1", "REG2"), each = 5))
 
 cfg <- getConfig(verbose = FALSE)
 
 noC <- function(x) {
   getComment(x) <- NULL
-  attr(x, "Metadata") <- NULL
+  attr(x, "Metadata") <- NULL # nolint: object_name_linter.
   return(x)
 }
 
@@ -33,10 +33,10 @@ test_that("NAs and Infs in input data are treated correctly", {
   pm2[1, 1, 1] <- Inf
   pm2[2, 2, 2] <- NA
 
-  ref <- new("magpie", .Data = structure(c(Inf, 1837, 1559, NA), .Dim = c(1L, 2L, 2L),
-         .Dimnames = list(i = "REG1", t = c("y1995", "y2005"), scenario = c("A2", "B1"))))
+  ref <- new("magpie",
+             .Data = structure(c(Inf, 1837, 1559, NA), .Dim = c(1L, 2L, 2L),
+                               .Dimnames = list(i = "REG1", t = c("y1995", "y2005"), scenario = c("A2", "B1"))))
   expect_identical(noC(round(toolAggregate(pm2, map, partrel = TRUE))), ref)
-
 })
 
 test_that("Mappings work in various formats identical", {
@@ -46,9 +46,9 @@ test_that("Mappings work in various formats identical", {
   expect_identical(noC(toolAggregate(pm, map[, 3:1])), ref)
   expect_identical(noC(toolAggregate(pm, map[, 2:1])), ref)
 
-  tmpfile <- file.path(tempdir(), "map.rds")
+  tmpfile <- file.path(withr::local_tempdir(), "map.rds")
   saveRDS(map, tmpfile)
-  tmpfile2 <- file.path(tempdir(), "map.csv")
+  tmpfile2 <- file.path(withr::local_tempdir(), "map.csv")
   write.csv(map, tmpfile2)
 
   expect_identical(noC(toolAggregate(pm, tmpfile)), ref)
@@ -97,14 +97,14 @@ test_that("partrel=TRUE works in combination with weights", {
 })
 
 test_that("aggregation in dim=1.2 with regions-only mapping is the same as in dim=1 with region.cell mapping", {
-  reltest <- data.frame(from = getCells(td), to = paste(rep(getRegions(td), 10),
+  reltest <- data.frame(from = getCells(td), to = paste(rep(getItems(td, dim = 1.1), 10),
                                                         rep(c("REG1", "REG2"), each = 50), sep = "."))
   expect_equivalent(magpiesort(toolAggregate(td, rel, dim = 1.2)), magpiesort(toolAggregate(td, reltest, dim = 1)))
 })
 
 test_that("aggregation in dim=1.1 with regions-only mapping is the same as in dim=1 with region.cell mapping", {
   reltest <- data.frame(from = getCells(tdeach), to = paste(rep(c("REG1", "REG2"), each = 50),
-                                                            rep(getRegions(td), 10), sep = "."))
+                                                            rep(getItems(td, dim = 1.1), 10), sep = "."))
   expect_equivalent(magpiesort(toolAggregate(tdeach, rel, dim = 1.1)),
                     magpiesort(toolAggregate(tdeach, reltest, dim = 1)))
 })
@@ -166,10 +166,24 @@ test_that("aggregation for subdimensions works properly", {
   expect_identical(getItems(toolAggregate(a, rel, dim = "species"), dim = 3, full = TRUE), "animal.sweet.black")
 })
 
+test_that("aggregation with missing rel argument works", {
+  a <- magclass::maxample("animal")
+  rel <- data.frame(from = getItems(a, dim = 1), country = getItems(a, dim = "country", full = TRUE), global = "GLO")
+  expect_identical(noC(toolAggregate(a, to = "country")), noC(toolAggregate(a, rel)))
+  expect_identical(noC(toolAggregate(a, to = "global+country")), noC(toolAggregate(a, to = "global+country")))
+  expect_identical(noC(toolAggregate(a, to = "species", dim = 3)), noC(dimSums(a, dim = c(3.1, 3.3))))
+  aSum <- dimSums(a, dim = 3)
+  getSets(aSum, fulldim = FALSE)[3] <- "all"
+  getItems(aSum, dim = 3) <- "all"
+  expect_identical(noC(toolAggregate(a, to = "all", dim = 3)), noC(aSum))
+  expect_equivalent(toolAggregate(a, to = "global"), toolAggregate(a, to = "all"))
+})
+
 test_that("Malformed inputs are properly detected", {
   expect_error(toolAggregate(1, 2), "Input is not a MAgPIE object")
   expect_error(toolAggregate(pm, map, weight = 1), "Weight is not a MAgPIE object")
-  expect_error(toolAggregate(as.magpie(1), rel = "notthere.csv"), "Cannot find given region mapping file")
+  expect_error(toolAggregate(as.magpie(1), rel = "notthere.csv"),
+               paste0("Cannot find region mapping file: notthere.csv (working directory ", getwd(), ")"), fixed = TRUE)
   expect_error(toolAggregate(pm, map[, 1, drop = FALSE]), "has only 1 column")
   expect_error(toolAggregate(pm, map[, 1]), "Malformed relation mapping")
   expect_error(toolAggregate(pm, map, weight = pm[1:2, , ]), "no match")
@@ -179,6 +193,8 @@ test_that("Malformed inputs are properly detected", {
   expect_warning(toolAggregate(pm, map, weight = -pm), "Negative numbers in weight.")
   expect_error(toolAggregate(pm, map, weight = -pm, negative_weight = "stop"), "Negative numbers in weight.")
   expect_error(toolAggregate(pm, diag(1, 16, 16), dim = 2), "Missing dimnames for aggregated dimension")
+  expect_error(toolAggregate(magclass::maxample("animal"), to = "country", dim = 1.2),
+               "Subdimensions in dim not supported if relation mapping is missing!")
 })
 
 test_that("Edge cases work", {

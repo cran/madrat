@@ -57,23 +57,11 @@ madrat:::fullEXAMPLE
 #  
 
 ## ---- eval = FALSE------------------------------------------------------------
-#  Depends: madrat(>= 1.00)
-
-## ---- eval = FALSE------------------------------------------------------------
-#  ### madrat.R
-#  #' @importFrom madrat vcat
-#  
-#  .onLoad <- function(libname, pkgname){
-#    madrat::setConfig(packages = c(madrat::getConfig("packages"), pkgname),
-#                      .cfgchecks = FALSE, .verbose = FALSE)
+#  .onAttach <- function(libname, pkgname) {
+#    madrat::madratAttach(pkgname)
 #  }
 #  
-#  #create an own warning function which redirects calls to vcat (package internal)
-#  warning <- function(...) vcat(0, ...)
-#  
-#  # create an own stop function which redirects calls to stop (package internal)
-#  stop <- function(...) vcat(-1, ...)
-#  
-#  # create an own cat function which redirects calls to cat (package internal)
-#  cat <- function(...) vcat(1, ...)
+#  .onDetach <- function(libpath) {
+#    madrat::madratDetach(libpath)
+#  }
 

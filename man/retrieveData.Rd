@@ -4,7 +4,16 @@
 \alias{retrieveData}
 \title{retrieveData}
 \usage{
-retrieveData(model, rev = 0, dev = "", cachetype = "rev", ...)
+retrieveData(
+  model,
+  rev = 0,
+  dev = "",
+  cachetype = "def",
+  puc = identical(dev, ""),
+  strict = FALSE,
+  renv = TRUE,
+  ...
+)
 }
 \arguments{
 \item{model}{The names of the model for which the data should be provided
@@ -21,14 +30,43 @@ shared by all calculations for the given revision and sets forcecache to TRUE,
 "def" points to the cache as defined in the current settings and does not change
 forcecache setting.}
 
+\item{puc}{Boolean deciding whether a fitting puc file (if existing) should be
+read in and if a puc file (if not already existing) should be created.}
+
+\item{strict}{Boolean which allows to trigger a strict mode. During strict mode
+warnings will be taken more seriously and will cause 1. to have the number of
+warnings as prefix of the created tgz file and 2. will prevent \code{retrieveData}
+from creating a puc file.}
+
+\item{renv}{Boolean which determines whether calculations should run
+within a renv environment (recommended) or not (currently only applied in
+\code{\link{pucAggregate}}). If activated, \code{renv} will check which packages
+in which versions were used to create the puc file, download, install and
+load these packages and run the aggregation with them. Otherwise, the packages
+in the currently used environment are being used.}
+
 \item{...}{(Optional) Settings that should be changed using \code{setConfig}
 (e.g. regionmapping). or arguments which should be forwarded to the corresponding
 fullXYZ function (Please make sure that argument names in full functions do not
 match settings in \code{setConfig}!)}
 }
+\value{
+Invisibly, the path to the newly created tgz archive.
+}
 \description{
 Function to retrieve a predefined collection of calculations for a specific
 regionmapping.
+}
+\note{
+The underlying full-functions can optionally provide a list of information back to
+\code{retrieveData}. Following list entries are currently supported:
+\itemize{
+\item \bold{tag} (optional) - additional name tag which will be included in the file
+name of the aggregated collection (resulting tgz-file). This can be useful to highlight
+information in the file name which otherwise would not be visible.
+\item \bold{pucTag} (optional) - identical purpose as \bold{tag} but for the resulting
+unaggregated collections (puc-files).
+}
 }
 \examples{
 \dontrun{

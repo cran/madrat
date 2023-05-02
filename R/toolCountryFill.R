@@ -37,25 +37,37 @@
 #' library(magclass)
 #' x <- new.magpie("DEU", 1994, "bla", 0)
 #' y <- toolCountryFill(x, 99)
-#' @importFrom magclass getRegions new.magpie getYears getNames mbind setCells
+#' @importFrom magclass getItems new.magpie getYears getNames mbind setCells
 #' @export
-toolCountryFill <- function(x, fill = NA, no_remove_warning = NULL, overwrite = FALSE, verbosity = 1, #nolint
+toolCountryFill <- function(x, fill = NA, no_remove_warning = NULL, overwrite = FALSE, verbosity = 1, # nolint
                             countrylist = NULL, ...) {
+  comment <- getComment(x)
   if (is.null(countrylist)) {
     isoCountry <- read.csv2(system.file("extdata", "iso_country.csv", package = "madrat"), row.names = NULL)
     countrylist <- as.vector(isoCountry[, "x"])
     names(countrylist) <- isoCountry[, "X"]
   }
-  missingCountries    <- setdiff(countrylist, getRegions(x))
-  additionalCountries <- setdiff(getRegions(x), countrylist)
+  missingCountries    <- setdiff(countrylist, getItems(x, dim = 1.1))
+  additionalCountries <- setdiff(getItems(x, dim = 1.1), countrylist)
 
   # remove irrelevant information
   if (length(additionalCountries) > 0) {
-    x <- x[setdiff(getRegions(x), additionalCountries), , ]
+    x <- x[setdiff(getItems(x, dim = 1.1), additionalCountries), , ]
     # warn only for countries which were not explicitly mentioned in argument "remove"
     countries2warn <- setdiff(additionalCountries, no_remove_warning)
-    if (length(countries2warn) > 0) vcat(0, "Data for following unknown country codes removed: ",
-      paste(countries2warn, collapse = ", "))
+    if (length(countries2warn) > 0) {
+      historicalCountries <- unique(read.csv2(system.file("extdata", "ISOhistorical.csv", package = "madrat"),
+                                              stringsAsFactors = FALSE)[["fromISO"]])
+      removedHistoricalCountries <- intersect(countries2warn, historicalCountries)
+      historicalHint <- if (length(removedHistoricalCountries) > 0) {
+        paste(" - By using madrat::toolISOhistorical the data for the following countries can usually still be used:",
+              paste(removedHistoricalCountries, collapse = ", "))
+      } else {
+        ""
+      }
+      warning("Data for following unknown country codes removed: ", paste(countries2warn, collapse = ", "),
+              historicalHint)
+    }
   }
 
   # check mappings
@@ -81,23 +93,31 @@ toolCountryFill <- function(x, fill = NA, no_remove_warning = NULL, overwrite = 
 
   # add missing data
   if (length(missingCountries) > 0) {
-
+    if (length(fill) <= 1) {
+      fillMessage <- fill
+    } else {
+      fillMessage <- "a given vector of values"
+    }
     missingImportantCountries <- setdiff(intersect(missingCountries, getISOlist("important")), names(map))
     if (length(missingImportantCountries) > 0) {
       namesCountries <- names(countrylist)[countrylist %in% missingImportantCountries]
-      vcat(verbosity, " - toolCountryFill set missing values for IMPORTANT countries to ", fill, ":")
+      vcat(verbosity, " - toolCountryFill set missing values for IMPORTANT countries to ", fillMessage, ":")
       vcat(verbosity, " --- ", paste0(namesCountries, " (", countrylist[namesCountries], ") "), show_prefix = FALSE)
     }
 
     missingDispensableCountries <- setdiff(intersect(missingCountries, getISOlist("dispensable")), names(map))
     if (length(missingImportantCountries) > 0) {
       namesCountries <- names(countrylist)[countrylist %in% missingDispensableCountries]
-      vcat(2, " - toolCountryFill set missing values for DISPENSABLE countries to ", fill, ":")
+      vcat(2, " - toolCountryFill set missing values for DISPENSABLE countries to ", fillMessage, ":")
       vcat(2, " --- ", paste0(namesCountries, " (", countrylist[namesCountries], ") "), show_prefix = FALSE)
     }
 
     tmp <- new.magpie(missingCountries, getYears(x), getNames(x), fill = fill)
-    x <- mbind(x, tmp)
+    if (length(x) == 0) {
+      x <- tmp
+    } else {
+      x <- mbind(x, tmp)
+    }
 
     # map data as defined by additional mappings
     if (!is.null(map)) {
@@ -111,6 +131,7 @@ toolCountryFill <- function(x, fill = NA, no_remove_warning = NULL, overwrite = 
   }
 
   # order regions by region name
-  x <- x[robustSort(getRegions(x)), , ]
+  x <- x[robustSort(getItems(x, dim = 1.1)), , ]
+  getComment(x) <- comment
   return(x)
 }

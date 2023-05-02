@@ -26,6 +26,11 @@
 #' A mapping object consists of any number of columns, where one column contains
 #' all the elements in x. These elements are mapped to the corresponding values
 #' in another column, as described below (see parameter 'from').
+#' It is possible to not set \code{rel} as long as \code{to} is set and \code{dim}
+#' is chosen appropriately. In that case the relation mapping is extracted from
+#' the dimnames of the corresponding dimension, e.g. if your data contains a
+#' spatial subdimension "country" you can aggregate to countries via
+#' \code{toolAggregate(x, to = "country", dim = 1)}.
 #' @param weight magclass object containing weights which should be considered
 #' for a weighted aggregation. The provided weight should only contain positive
 #' values, but does not need to be normalized (any positive number>=0 is allowed).
@@ -38,6 +43,7 @@
 #' used}). If data should be aggregated based on more than one column these
 #' columns can be specified via "+", e.g. "region+global" if the data should
 #' be aggregated to column regional as well as column global.
+#' If {rel} is missing \code{to} refers to the aggregation target dimension name.
 #' @param dim Specifying the dimension of the magclass object that should be
 #' (dis-)aggregated. Either specified as an integer
 #' (1=spatial,2=temporal,3=data) or if you want to specify a sub dimension
@@ -66,12 +72,13 @@
 #' @importFrom magclass getDim getSets getSets<- as.magpie getItems collapseNames
 #' @importFrom utils object.size
 #' @importFrom Matrix Matrix t rowSums
+#' @importFrom withr local_options
 #' @seealso \code{\link{calcOutput}}
 #' @examples
 #'
 #' # create example mapping
 #' p <- magclass::maxample("pop")
-#' mapping <- data.frame(from   = getRegions(p),
+#' mapping <- data.frame(from = magclass::getItems(p, dim = 1.1),
 #'   region = rep(c("REG1", "REG2"), 5),
 #'   global = "GLO")
 #' mapping
@@ -82,12 +89,25 @@
 #' toolAggregate(p, mapping, weight = p)
 #' # combined aggregation across two columns
 #' toolAggregate(p, mapping, to = "region+global")
+#'
 toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1, wdim = NULL, partrel = FALSE, # nolint
                           negative_weight = "warn", mixed_aggregation = FALSE, verbosity = 1) { # nolint
 
   if (!is.magpie(x)) stop("Input is not a MAgPIE object, x has to be a MAgPIE object!")
 
   comment <- getComment(x)
+
+  # create missing rel information from dimension names if argument "to" is set
+  if (missing(rel) && !is.null(to)) {
+    if (round(dim) != dim) stop("Subdimensions in dim not supported if relation mapping is missing!")
+    rel <- data.frame(c(dimnames(x)[dim], getItems(x, dim = dim, split = TRUE, full = TRUE)))
+    if (dim == 1 && is.null(rel$global)) {
+      rel$global <- "GLO"  # add global column
+    }
+    if (is.null(rel$all)) {
+      rel$all <- "all"
+    }
+  }
 
   .reorder <- function(x, e, dim) {
     if (dim == 1) return(x[e, , ])
@@ -104,9 +124,11 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
     .getAggregationMatrix <- function(rel, from = NULL, to = NULL, items = NULL, partrel = FALSE) {
 
       if ("tbl" %in% class(rel)) rel <- data.frame(rel)
-      if (!(is.matrix(rel) | is.data.frame(rel))) {
+      if (!(is.matrix(rel) || is.data.frame(rel))) {
         if (length(rel) > 1) stop("Malformed relation mapping!")
-        if (!file.exists(rel)) stop("Cannot find given region mapping file!")
+        if (!file.exists(rel)) {
+          stop("Cannot find region mapping file: ", rel, " (working directory ", getwd(), ")")
+        }
         rel <- toolGetMapping(rel, where = "local")
       }
       if (is.matrix(rel)) rel <- as.data.frame(rel)
@@ -154,14 +176,15 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
     }
     if (length(to) == 1 && grepl("+", to, fixed = TRUE)) {
       tmprel <- NULL
-      to <- strsplit(to, "+", fixed = TRUE)[[1]]
-      for (t in to) {
+      toSplit <- strsplit(to, "+", fixed = TRUE)[[1]]
+      for (t in toSplit) {
         tmp <- .getAggregationMatrix(rel, from = from, to = t, items = getItems(x, dim = dim), partrel = partrel)
         tmprel <- rbind(tmprel, tmp)
       }
       rel <- tmprel
     } else {
       rel <- .getAggregationMatrix(rel, from = from, to = to, items = getItems(x, dim = dim), partrel = partrel)
+      if (is.null(to)) to  <- names(dimnames(rel))[1]
     }
   }
 
@@ -180,7 +203,7 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
     # datanames not in relnames
     noagg <- datnames[!datnames %in% colnames(rel)]
     if (length(noagg) > 0) {
-      if (length(noagg) > 1) noagg[1:(length(noagg) - 1)] <- paste0(noagg[1:(length(noagg) - 1)], ", ")
+      if (length(noagg) > 1) noagg[seq_len(length(noagg) - 1)] <- paste0(noagg[seq_len(length(noagg) - 1)], ", ")
       vcat(verbosity, noagg, " not mapped in aggregation!")
     }
     rel <- rel[, common, drop = FALSE]
@@ -232,16 +255,19 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
       weight[is.na(weight)] <- 1
     }
 
+    if (wdim != floor(wdim)) {
+      getSets(weight)[paste0("d", wdim)]  <- getSets(x)[paste0("d", dim)]
+      getSets(weight2)[paste0("d", wdim)] <- getSets(x)[paste0("d", dim)]
+    }
+
     if (setequal(getItems(weight, dim = wdim), getItems(x, dim = dim))) {
-      if (wdim != floor(wdim)) getSets(weight)[paste0("d", wdim)] <- getSets(x)[paste0("d", dim)]
       out <- toolAggregate(x * weight, rel, from = from, to = to, dim = dim, partrel = partrel) * weight2
     } else {
-      if (wdim != floor(wdim)) getSets(weight2)[paste0("d", wdim)] <- getSets(x)[paste0("d", dim)]
       out <- toolAggregate(x * weight2, rel, from = from, to = to, dim = dim, partrel = partrel) * weight
     }
     getComment(out) <- c(comment, paste0("Data aggregated (toolAggregate): ", date()))
     return(out)
-  }  else {
+  } else {
 
     # convert rel for better performance
     rel <- Matrix(rel)
@@ -269,16 +295,19 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
           if (!setequal(rownames(rel), onlynames)) {
             stop("The provided mapping contains entries which could not be found in the data: ",
               paste(setdiff(colnames(rel), onlynames), collapse = ", "))
-          } else  rel <- t(rel)
+          } else  {
+            rel <- t(rel)
+          }
         }
 
         tmp <- unique(sub(search, "\\1#|TBR|#\\3", names))
         additions <- strsplit(tmp, split = "#|TBR|#", fixed = TRUE)
         add <- sapply(additions, function(x) return(x[1:2])) # nolint
         add[is.na(add)] <- ""
-        .tmp <- function(add, fill) return(paste0(rep(add[1, ], each = length(fill)),
-          fill,
-          rep(add[2, ], each = length(fill))))
+        .tmp <- function(add, fill) {
+          return(paste0(rep(add[1, ], each = length(fill)), fill,
+                        rep(add[2, ], each = length(fill))))
+        }
 
         cnames <- .tmp(add, colnames(rel))
         rnames <- .tmp(add, rownames(rel))
@@ -321,7 +350,7 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
             y[j] <- 1
           }
         }
-        if (any(is.na(y))) {
+        if (any(is.na(y)) && !all(is.na(y))) {
           # Special NA treatment to prevent that a single NA in x
           # is setting the full output to NA (because 0*NA is NA)
           # NAs are now treated in a way that anything except 0 times NA
@@ -334,9 +363,7 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
       out <- apply(x, which(1:3 != dim), matrixMultiplication, rel)
       if (length(dim(out)) == 2) out <- array(out, dim = c(1, dim(out)), dimnames = c("", dimnames(out)))
     } else {
-      optMatprod <- getOption("matprod")
-      on.exit(options(matprod = optMatprod)) # nolint
-      options(matprod = "blas")              # nolint
+      local_options(matprod = "blas")
       notdim <- setdiff(1:3, dim)
       out <- rel %*% as.array(wrap(x, list(dim, notdim)))
       out <- array(out, dim = c(dim(rel)[1], dim(x)[notdim]))
@@ -353,16 +380,23 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
       regOut <- factor(as.vector(round(rel %*% as.numeric(regionList) /
         (rel %*% rep(1, dim(rel)[2])))))
       levels(regOut) <- levels(regionList)
-    } else stop("Missing dimnames for aggregated dimension")
+    } else {
+      stop("Missing dimnames for aggregated dimension")
+    }
 
-    if (!any(grepl("\\.", regOut)) && anyDuplicated(regOut)) regOut <- paste(regOut, 1:dim(out)[1], sep = ".")
+    if (!any(grepl("\\.", regOut)) && anyDuplicated(regOut)) regOut <- paste(regOut, seq_len(dim(out)[1]), sep = ".")
 
     dimnames(out)[[1]] <- regOut
 
     if (dim == 2) out <- wrap(out, map = list(2, 1, 3))
     if (dim == 3) out <- wrap(out, map = list(2, 3, 1))
 
-    getSets(out, fulldim = FALSE) <- getSets(x, fulldim = FALSE)
+    sets <- getSets(x, fulldim = FALSE)
+    # update set name if number of sub-dimensions reduced to 1
+    if (ndim(out, dim = dim) == 1  && ndim(x, dim = dim) > 1) {
+      sets[dim] <- ifelse(!is.null(to), to, NA)
+    }
+    getSets(out, fulldim = FALSE) <- sets
 
     getComment(out) <- c(comment, paste0("Data aggregated (toolAggregate): ", date()))
     out <- as.magpie(out, spatial = 1, temporal = 2)

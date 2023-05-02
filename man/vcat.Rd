@@ -4,12 +4,19 @@
 \alias{vcat}
 \title{Tool: Verbosity Cat}
 \usage{
-vcat(verbosity, ..., level = NULL, fill = TRUE, show_prefix = TRUE)
+vcat(
+  verbosity,
+  ...,
+  level = NULL,
+  fill = TRUE,
+  show_prefix = TRUE,
+  logOnly = FALSE
+)
 }
 \arguments{
 \item{verbosity}{The lowest verbosity level for which this message should be
 shown (verbosity = -1 means no information at all, 0 = only warnings, 1 =
-warnings and execution informations, 2 = full information). If the verbosity
+warnings and execution information, 2 = full information). If the verbosity
 is set to 0 the message is written as warning, if the verbosity is set
 higher than 0 it is written as a normal cat message.}
 
@@ -30,6 +37,9 @@ fill if this is numeric. Non-positive fill values are ignored, with a warning.}
 \item{show_prefix}{a logical defining whether a content specific prefix (e.g. "NOTE")
 should be shown in front of the message or not. If prefix is not shown it will also
 not show up in official statistics.}
+
+\item{logOnly}{option to only log warnings and error message without creating warnings
+or errors (expert use only).}
 }
 \description{
 Function which returns information based on the verbosity setting

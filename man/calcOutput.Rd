@@ -10,10 +10,13 @@ calcOutput(
   file = NULL,
   years = NULL,
   round = NULL,
+  signif = NULL,
   supplementary = FALSE,
   append = FALSE,
-  na_warning = TRUE,
+  warnNA = TRUE,
+  na_warning = NULL,
   try = FALSE,
+  regionmapping = NULL,
   ...
 )
 }
@@ -31,7 +34,11 @@ outputfolder as specified in the config.}
 \item{years}{A vector of years that should be returned. If set to NULL all
 available years are returned.}
 
-\item{round}{A rounding factor. If set to NULL no rounding will occur.}
+\item{round}{Number of decimal places to round to.  Ignored if \code{NULL}.  See
+\code{\link[=round]{round()}} for details.}
+
+\item{signif}{Number of significant digits to round to.  Ignored if \code{NULL}.
+See \code{\link[=signif]{signif()}} for details.}
 
 \item{supplementary}{boolean deciding whether supplementary information such as weight should be
 returned or not. If set to TRUE a list of elements will be returned!}
@@ -39,12 +46,17 @@ returned or not. If set to TRUE a list of elements will be returned!}
 \item{append}{boolean deciding whether the output data should be appended in the existing file.
 Works only when a file name is given in the function call.}
 
-\item{na_warning}{boolean deciding whether NAs in the data set should create a warning or not}
+\item{warnNA}{boolean deciding whether NAs in the data set should create a warning or not}
+
+\item{na_warning}{deprecated, please use \code{warnNA} instead}
 
 \item{try}{if set to TRUE the calculation will only be tried and the script will continue even if
 the underlying calculation failed. If set to TRUE calculation will stop with an error in such a
 case. This setting will be overwritten by the global setting debug=TRUE, in which try will be
 always interpreted as TRUE.}
+
+\item{regionmapping}{alternative regionmapping to use for the given calculation. It will temporarily
+overwrite the global setting just for this calculation.}
 
 \item{...}{Additional settings directly forwarded to the corresponding
 calculation function}
@@ -81,13 +93,13 @@ will check whether there are any values below the given threshold and warn in th
 \item \bold{max} (optional) - Maximum value which can appear in the data. If provided calcOutput
 will check whether there are any values above the given threshold and warn in this case
 \item \bold{structure.spatial} (optional) - regular expression describing the name structure of all
-names in the spatial dimension (e.g. "^[A-Z]\{3\}$"). Names will be checked against this regular expression and
+names in the spatial dimension (e.g. \code{"^[A-Z]\\{3\\}$"}). Names will be checked against this regular expression and
 disagreements will be reported via a warning.
 \item \bold{structure.temporal} (optional) - regular expression describing the name structure of all
-names in the temporal dimension (e.g. "^y[0-9]\{4\}$"). Names will be checked against this regular expression and
+names in the temporal dimension (e.g. \code{"^y[0-9]\\{4\\}$"}). Names will be checked against this regular expression and
 disagreements will be reported via a warning.
 \item \bold{structure.data} (optional) - regular expression describing the name structure of all
-names in the data dimension (e.g. "^[a-z]*\\\\.[a-z]*$"). Names will be checked against this regular expression and
+names in the data dimension (e.g. \code{"^[a-z]*\\\\\\\\.[a-z]*$"}). Names will be checked against this regular expression and
 disagreements will be reported via a warning.
 \item \bold{aggregationFunction} (optional | default = toolAggregate) - Function to be used to
 aggregate data from country to regions. The function must have the argument \code{x} for
@@ -97,6 +109,17 @@ must return the data as magpie object in the spatial resolution as defined in re
 to the aggregation function. In addition to the arguments set here, the function will be
 supplied with the arguments \code{x}, \code{rel} and if provided/deviating from the default
 also \code{weight} and \code{mixed_aggregation}.
+\item \bold{putInPUC} (optional) boolean which decides whether this calculation should be added to a puc file
+which contains non-aggregated data and can be used to later on aggregate the data to resolutions of own choice.
+If not set \code{calcOutput} will try to determine automatically, whether a file is being required for the puc file
+or not, but in more complex cases (e.g. if calculations below top-level have to be run as well) this setting can
+be used to manually tweak the puc file list. CAUTION: Incorrect settings will cause corrupt puc files,
+so use this setting with extreme care and only if necessary.
+\item \bold{cache} (optional) boolean which decides whether a cache file should be written (if caching is active)
+or not. Default setting is TRUE. This can be for instance useful, if the calculation itself is quick, but
+the corresponding file sizes are huge. Or if the caching for the given data type does not support storage
+in RDS format. CAUTION: Deactivating caching for a data set which should be part of a PUC file
+will corrupt the PUC file. Use with care.
 }
 }
 \examples{

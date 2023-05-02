@@ -1,12 +1,4 @@
-context("Data calculation wrapper")
-
-Sys.setenv("LANGUAGE" = "EN")
-
 cfg <- getConfig(verbose = FALSE)
-
-globalassign <- function(...) {
-  for (x in c(...)) assign(x, eval.parent(parse(text = x)), .GlobalEnv)
-}
 
 nc <- function(x) {
   getComment(x) <- NULL
@@ -15,7 +7,6 @@ nc <- function(x) {
 
 
 test_that("calcOutput will stop if unused arguments are provided", {
-  setConfig(globalenv = TRUE, .verbose = FALSE)
   calcTest1 <- function(testarg = FALSE) {
     return(list(x = as.magpie(0),
                 weight = NULL,
@@ -26,13 +17,13 @@ test_that("calcOutput will stop if unused arguments are provided", {
   globalassign("calcTest1")
   expect_error(co <- capture.output(calcOutput("Test1", testarg = TRUE, blubba = 1, aggregate = FALSE)),
                "unused argument \\(blubba = 1\\)")
-  setConfig(globalenv = cfg$globalenv, .verbose = FALSE)
 })
 
 test_that("Malformed inputs are properly detected", {
   skip_on_cran()
   skip_if_offline("zenodo.org")
-  expect_error(setConfig(packages = "nonexistentpackage"), 'Setting "packages" can only be set to installed packages')
+  expect_error(localConfig(packages = "nonexistentpackage"),
+               'Setting "packages" can only be set to installed packages')
   expect_error(calcOutput("TauTotal", aggregate = "wtf"),
                "None of the columns given in aggregate = wtf could be found in the mappings!")
   expect_error(calcOutput(TRUE), "Invalid type \\(must be a character\\)")
@@ -40,45 +31,56 @@ test_that("Malformed inputs are properly detected", {
 })
 
 test_that("Malformed calc outputs are properly detected", {
-  setConfig(globalenv = TRUE, verbosity = 0, .verbose = FALSE)
+  localConfig(verbosity = 0, .verbose = FALSE)
   calcBla1 <- function() return(as.magpie(1))
   calcBla2 <- function() return(list(x = 1, weight = NULL))
   calcBla3 <- function() return(list(x = as.magpie(1), weight = 1))
   calcBla4 <- function() return(list(x = as.magpie(1), weight = new.magpie(years = 1:2)))
-  calcBla5 <- function() return(list(x = new.magpie(years = 1:2, fill = 1),
-                                    weight = new.magpie(years = 3, fill = 1),
-                                    unit = "1",
-                                    description = "test"))
-  calcBla6 <- function() return(list(x = new.magpie(years = 1:2, fill = 1),
-                                    weight = new.magpie(years = 3, fill = 1),
-                                    description = "test"))
-  calcBla7 <- function() return(list(x = new.magpie(years = 1:2, fill = 1),
-                                    weight = new.magpie(years = 3, fill = 1),
-                                    unit = "1"))
-  calcBla8 <- function() return(list(x = new.magpie(years = 1:2),
-                                    weight = new.magpie(years = 3, fill = 1),
-                                    unit = "1",
-                                    description = "test"))
-  calcBla9 <- function() return(list(x = new.magpie(years = 1:2, fill = 1),
-                                    weight = new.magpie(years = 3, fill = 1),
-                                    unit = "1",
-                                    description = "test",
-                                    max = 0))
-  calcBla10 <- function() return(list(x = new.magpie(years = 1:2, fill = 1),
-                                    weight = new.magpie(years = 3, fill = 1),
-                                    unit = "1",
-                                    description = "test",
-                                    min = 10))
-  calcBla11 <- function() return(list(x = 1,
-                                     class = list))
-  calcBla12 <- function() return(list(x = 1,
-                                     class = c("classA", "classB")))
-  calcBla13 <- function() return(list(x = 1,
-                                     class = "list"))
-  calcBla14 <- function() return(list(x = list(1),
-                                     class = "list",
-                                     unit = "1",
-                                     description = "test"))
+  calcBla5 <- function() {
+    return(list(x = new.magpie(years = 1:2, fill = 1),
+                weight = new.magpie(years = 3, fill = 1),
+                unit = "1",
+                description = "test"))
+  }
+  calcBla6 <- function() {
+    return(list(x = new.magpie(years = 1:2, fill = 1),
+                weight = new.magpie(years = 3, fill = 1),
+                description = "test"))
+  }
+  calcBla7 <- function() {
+    return(list(x = new.magpie(years = 1:2, fill = 1),
+                weight = new.magpie(years = 3, fill = 1),
+                unit = "1"))
+  }
+  calcBla8 <- function() {
+    return(list(x = new.magpie(years = 1:2),
+                weight = new.magpie(years = 3, fill = 1),
+                unit = "1",
+                description = "test"))
+  }
+  calcBla9 <- function() {
+    return(list(x = new.magpie(years = 1:2, fill = 1),
+                weight = new.magpie(years = 3, fill = 1),
+                unit = "1",
+                description = "test",
+                max = 0))
+  }
+  calcBla10 <- function() {
+    return(list(x = new.magpie(years = 1:2, fill = 1),
+                weight = new.magpie(years = 3, fill = 1),
+                unit = "1",
+                description = "test",
+                min = 10))
+  }
+  calcBla11 <- function() return(list(x = 1, class = list))
+  calcBla12 <- function() return(list(x = 1, class = c("classA", "classB")))
+  calcBla13 <- function() return(list(x = 1, class = "list"))
+  calcBla14 <- function() {
+    return(list(x = list(1),
+                class = "list",
+                unit = "1",
+                description = "test"))
+  }
   globalassign(paste0("calcBla", 1:14))
 
   expect_error(calcOutput("Bla1"), "not list of two MAgPIE objects")
@@ -97,7 +99,7 @@ test_that("Malformed calc outputs are properly detected", {
   expect_error(calcOutput("Bla14"), "Aggregation can only be used in combination with x\\$class=\"magpie\"")
 
   a <- calcOutput("Bla5", aggregate = FALSE)
-  writeLines("CorruptCache", madrat:::cacheName("calc", "Bla5", packages = "madrat", mode = "get"))
+  writeLines("CorruptCache", cacheName("calc", "Bla5", packages = "madrat", mode = "get"))
   expect_warning(b <- calcOutput("Bla5", aggregate = FALSE), "corrupt cache")
   expect_identical(nc(a), nc(b))
   expect_identical(nc(b), nc(calcOutput("Bla5", aggregate = FALSE)))
@@ -113,7 +115,7 @@ test_that("Calculation for tau example data set works", {
   skip_if_offline("zenodo.org")
   sink(tempfile())
   require(magclass)
-  setConfig(enablecache = TRUE, forcecache = FALSE, verbosity = 2, mainfolder = tempdir())
+  localConfig(ignorecache = FALSE, forcecache = FALSE, verbosity = 2)
   expectedResult <- new("magpie",
                          .Data = structure(c(0.99, 0.83, 0.68, 1.47, 0.9, 0.64, 0.8, 0.97, 1.17, 0.89, 1.27, 1.25),
                                            .Dim = c(12L, 1L, 1L),
@@ -131,11 +133,6 @@ test_that("Calculation for tau example data set works", {
 
 
 test_that("Standard workflow works", {
-
-  setConfig(globalenv = TRUE,
-            mainfolder = tempdir(),
-            .verbose = FALSE)
-
   downloadTest2 <- function() {
     a <- as.magpie(1)
     getCells(a) <- "DEU"
@@ -143,10 +140,11 @@ test_that("Standard workflow works", {
   }
   readTest2 <- function() return(read.magpie("test.mz"))
   convertTest2 <- function(x) return(toolCountryFill(x, fill = 10))
-  calcTest2 <- function() return(list(x = readSource("Test2"),
-                                      weight = NULL,
-                                      unit = "1"))
-
+  calcTest2 <- function() {
+    return(list(x = readSource("Test2"),
+                weight = NULL,
+                unit = "1"))
+  }
   fullTEST2 <- function(rev = 0, dev = "") {
     expectedOutput <- new("magpie",
                            .Data = structure(c(540, 490, 510, 331, 160, 210, 120, 50, 40, 10, 10, 10),
@@ -160,15 +158,17 @@ test_that("Standard workflow works", {
     expect_equivalent(a, expectedOutput)
   }
   globalassign("downloadTest2", "readTest2", "convertTest2", "calcTest2", "fullTEST2")
-  co <- capture.output(retrieveData("test2"))
+  co <- capture.output(retrieveData("test2", puc = FALSE))
 })
 
 test_that("Custom class support works", {
-  setConfig(globalenv = TRUE, outputfolder = tempdir(), verbosity = 0, .verbose = FALSE)
-  calcBla1 <- function() return(list(x          = list(1),
-                                    class      = "list",
-                                    unit       = "1",
-                                    description = "test"))
+  localConfig(outputfolder = withr::local_tempdir(), verbosity = 0, .verbose = FALSE)
+  calcBla1 <- function() {
+    return(list(x          = list(1),
+                class      = "list",
+                unit       = "1",
+                description = "test"))
+  }
   globalassign(paste0("calcBla", 1))
   data <- calcOutput("Bla1", aggregate = FALSE, file = "test.rds")
   expect_equivalent(data, list(1))
@@ -176,7 +176,7 @@ test_that("Custom class support works", {
 })
 
 test_that("Old descriptors are properly removed from comment", {
-  setConfig(globalenv = TRUE, outputfolder = tempdir(), verbosity = 0, .verbose = FALSE)
+  localConfig(outputfolder = withr::local_tempdir(), verbosity = 0, .verbose = FALSE)
   calcBlub <- function() {
     x <- as.magpie(1)
     getComment(x) <- "test comment"
@@ -201,7 +201,7 @@ test_that("Old descriptors are properly removed from comment", {
 })
 
 test_that("Aggregation works", {
-  setConfig(globalenv = TRUE, outputfolder = tempdir(), verbosity = 0, .verbose = FALSE)
+  localConfig(outputfolder = withr::local_tempdir(), verbosity = 0, .verbose = FALSE)
   calcAggregationTest <- function() {
     x <- new.magpie(getISOlist(), fill = 1)
     return(list(x = x,
@@ -217,6 +217,27 @@ test_that("Aggregation works", {
                 unit = "1",
                 mixed_aggregation = TRUE,
                 aggregationFunction = function(x, rel, mixed_aggregation) return(as.magpie(1)))) # nolint
+  }
+  calcAggregationTest3 <- function() {
+    x1 <- new.magpie(getISOlist(), fill = 1)
+    getSets(x1)[1] <- "country"
+    x2 <- new.magpie(1:4, fill = 2)
+    x <- x1 * x2
+    return(list(x = x,
+                weight = NULL,
+                description = "Aggregation test data 3",
+                unit = "1"))
+  }
+  calcAggregationTest4 <- function() {
+    x1 <- new.magpie(getISOlist()[1:12], fill = 1)
+    getSets(x1)[1] <- "country"
+    x2 <- new.magpie(1:4, fill = 2)
+    x <- x1 * x2
+    return(list(x = x,
+                weight = NULL,
+                description = "Aggregation test data 3",
+                unit = "1",
+                isocountries = FALSE))
   }
   calcMalformedAggregation <- function() {
     x <- new.magpie(getISOlist(), fill = 1)
@@ -237,7 +258,7 @@ test_that("Aggregation works", {
                 aggregationArguments = 42,
                 aggregationFunction = function(x, rel, mixed_aggregation) return(as.magpie(1)))) # nolint
   }
-  globalassign("calcAggregationTest", "calcAggregationTest2",
+  globalassign("calcAggregationTest", "calcAggregationTest2", "calcAggregationTest3", "calcAggregationTest4",
                "calcMalformedAggregation", "calcMalformedAggregation2")
 
   reg <- new("magpie", .Data = structure(c(54, 49, 51, 34, 16, 21, 12,
@@ -249,9 +270,28 @@ test_that("Aggregation works", {
   glo <- new("magpie", .Data = structure(249, .Dim = c(1L, 1L, 1L),
               .Dimnames = list(region = "GLO", year = NULL, data = NULL)))
 
+  country2 <- new("magpie", .Data = structure(rep(8, 249), .Dim = c(249L, 1L, 1L), .Dimnames = list(
+    country = unname(getISOlist()), year = NULL, data = NULL)))
+
+  reg2 <- new("magpie", .Data = structure(c(432, 392, 408, 272, 128, 168,
+                                            96, 40, 32, 8, 8, 8), .Dim = c(12L, 1L, 1L), .Dimnames = list(
+                                            region = c("LAM", "OAS", "SSA", "EUR", "NEU", "MEA", "REF",
+                                                       "CAZ", "CHA", "IND", "JPN", "USA"), year = NULL, data = NULL)))
+  glo2 <- new("magpie", .Data = structure(1992, .Dim = c(1L, 1L, 1L),
+                                          .Dimnames = list(global = "GLO", year = NULL, data = NULL)))
+
+  region1 <- new("magpie", .Data = structure(rep(24, 4), .Dim = c(4L, 1L, 1L),
+                                             .Dimnames = list(region1 = c("1", "2", "3", "4"),
+                                                              year = NULL, data = NULL)))
+
   expect_identical(nc(calcOutput("AggregationTest")), reg)
   expect_identical(nc(calcOutput("AggregationTest2")), clean_magpie(as.magpie(1)))
+  expect_identical(nc(calcOutput("AggregationTest3")), reg2)
   expect_identical(nc(calcOutput("AggregationTest", aggregate = "glo")), glo)
+  expect_identical(nc(calcOutput("AggregationTest3", aggregate = "glo")), glo2)
+  expect_identical(nc(calcOutput("AggregationTest3", aggregate = "country")), country2)
+  expect_error(calcOutput("AggregationTest4", aggregate = TRUE), "Cannot aggregate to regions")
+  expect_identical(nc(calcOutput("AggregationTest4", aggregate = "region1")), region1)
   expect_identical(nc(calcOutput("AggregationTest", aggregate = "regglo")), mbind(reg, glo))
   expect_warning(a <- nc(calcOutput("AggregationTest", aggregate = "global+region+cheese")),
                  "Omitting cheese from aggregate")
@@ -259,16 +299,76 @@ test_that("Aggregation works", {
   expect_error(calcOutput("MalformedAggregation"), "must be a function")
   expect_error(calcOutput("MalformedAggregation2"), "must be a list of function arguments")
 
-  xtramap <- file.path(tempdir(), "blub.csv")
+  xtramap <- file.path(withr::local_tempdir(), "blub.csv")
   file.copy(toolGetMapping(getConfig("regionmapping"), returnPathOnly = TRUE), xtramap)
-  setConfig(extramappings = xtramap)
-  expect_warning(a <- nc(calcOutput("AggregationTest", aggregate = "glo")), "Multiple compatible mappings found")
-  expect_identical(a, glo)
-  setConfig(extramappings = "")
+  localConfig(extramappings = xtramap)
+
+  # use 'local' to have the change of verbosity level only local and let the remainder of the script unaffected
+  local({
+    # set verbosity to a level that will produce the expected NOTE
+    localConfig(verbosity = 1)
+    expect_message(a <- nc(calcOutput("AggregationTest", aggregate = "glo")),
+      paste0("Ignoring column\\(s\\) X, region, global from .* as the column\\(s\\) ",
+      "already exist in another mapping\\."))
+    expect_identical(a, glo)
+  })
+})
+
+test_that("1on1 country mappings do not alter the data", {
+  map <- data.frame(country = getISOlist(), region = getISOlist())
+  tmpFile <- withr::local_tempfile(fileext = ".csv")
+  write.csv(map, tmpFile)
+  localConfig(outputfolder = withr::local_tempdir(),
+              regionmapping = tmpFile,
+              verbosity = 0, .verbose = FALSE)
+
+  expect_equal(nc(calcOutput("TauTotal")), nc(calcOutput("TauTotal", aggregate = FALSE)))
+
+
+  calc1on1Test <- function() {
+    x1 <- new.magpie(getISOlist(), fill = 1)
+    getSets(x1)[1] <- "country"
+    x2 <- new.magpie(1:4, fill = 2)
+    x <- x1 * x2
+    # fill with random numbers and mix order to test whether this
+    # affects the country-country mapping
+    x[, , ] <- unlist(randu)[seq_len(length(x))]
+    x <- x[order(x), , ]
+    return(list(x = x,
+                weight = NULL,
+                description = "Aggregation test data 3",
+                unit = "1"))
+  }
+  globalassign("calc1on1Test")
+  aCountry <- magpiesort(nc(calcOutput("1on1Test", aggregate = "country")))
+  getSets(aCountry)[1] <- "region"
+  aRegion <- magpiesort(nc(calcOutput("1on1Test")))
+  expect_equal(aRegion, aCountry)
+})
+
+test_that("Bilateral aggregation works", {
+  calcBilateral <- function() {
+    map <- toolGetMapping("regionmappingH12.csv")
+    tmp <- expand.grid(map[[2]], map[[2]], stringsAsFactors = FALSE)
+    x <- new.magpie(paste0(tmp[[1]], ".", tmp[[2]]))
+    x[, , ] <- rep(seq_len(nrow(map)), nrow(map))
+    return(list(x = x, weight = x, unit = "SpaceDollar", description = "Test data set"))
+  }
+  localConfig(verbosity = 0, .verbose = FALSE)
+  globalassign("calcBilateral")
+  aExp <- new("magpie",
+              .Data = structure(c(161.215558601782, 176.61906116643, 171.777380952381),
+                                .Dim = c(3L, 1L, 1L),
+                                .Dimnames = list(region.region1 = c("LAM.LAM", "OAS.LAM", "SSA.LAM"),
+                                                 year = NULL, data = NULL)))
+
+  a <- calcOutput("Bilateral")
+  getComment(a) <- NULL
+  expect_equal(head(a), aExp)
 })
 
 test_that("Edge cases work as expected", {
-  setConfig(globalenv = TRUE, outputfolder = tempdir(), verbosity = 0, .verbose = FALSE)
+  localConfig(outputfolder = withr::local_tempdir(), verbosity = 0, .verbose = FALSE)
   calcEdgeTest <- function() {
     x <- new.magpie(getISOlist(), fill = 1)
     return(list(x = x,
@@ -354,6 +454,7 @@ test_that("Edge cases work as expected", {
 })
 
 test_that("Data check works as expected", {
+  localConfig(outputfolder = withr::local_tempdir(), verbosity = 0, .verbose = FALSE)
   calcMalformedISO <- function() {
     x <- new.magpie(getISOlist(), fill = 1)
     return(list(x = x,
@@ -429,13 +530,11 @@ test_that("Data check works as expected", {
   expect_warning(calcOutput("MalformedStruct"), "Invalid names")
   expect_warning(calcOutput("MalformedStruct2"), "Missing names")
   expect_silent(suppressMessages(calcOutput("MatchingStruct")))
-  cache <- madrat:::cacheName("calc", "MatchingStruct")
+  cache <- cacheName("calc", "MatchingStruct")
   a <- readRDS(cache)
   getCells(a$x)[1] <- "BLA"
   saveRDS(a, cache)
-  setConfig(verbosity = 2, .verbose = FALSE)
+  localConfig(verbosity = 2, .verbose = FALSE)
   expect_message(calcOutput("MatchingStruct"), "cache file corrupt")
   expect_warning(calcOutput("Infinite", aggregate = FALSE), "infinite values")
 })
-
-rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)

@@ -27,10 +27,12 @@
 #' Can generate a lot of output for a large object.
 #' @param warningThreshold If more than this fraction of the countries in a given region and
 #' timestep have a missing value, throw a warning.
+#' @param noteThreshold If more than this fraction of the countries in a given region and
+#' timestep have a missing value, a note will be written.
 #' @return A MAgPIE object with the missing values filled.
-#' @author Bjoern Soergel, Lavinia Baumstark
+#' @author Bjoern Soergel, Lavinia Baumstark, Jan Philipp Dietrich
 #'
-#' @importFrom magclass as.magpie is.magpie getRegions getYears dimSums
+#' @importFrom magclass as.magpie is.magpie getItems getYears dimSums
 #' @export
 #'
 #' @examples
@@ -39,8 +41,8 @@
 #'   fill = c(1, NA, 3, 4, 5, 6, NA, 8))
 #' rel <- data.frame(CountryCode = c("A", "B", "C", "D"), RegionCode = c("R1", "R1", "R1", "R2"))
 #' xfilled <- toolFillWithRegionAvg(x, regionmapping = rel)
-toolFillWithRegionAvg <- function(x, valueToReplace = NA, weight = NULL, callToolCountryFill = FALSE,
-                                  regionmapping = NULL, verbose = TRUE, warningThreshold = 0.5) {
+toolFillWithRegionAvg <- function(x, valueToReplace = NA, weight = NULL, callToolCountryFill = FALSE, # nolint
+                                  regionmapping = NULL, verbose = TRUE, warningThreshold = 0.5, noteThreshold = 1) {
 
   if (!is.magpie(x)) stop("Input x has to be a MAgPIE object!")
   # limit to one data dimension at a time (avoids potential pitfalls with weight dimensions)
@@ -53,9 +55,13 @@ toolFillWithRegionAvg <- function(x, valueToReplace = NA, weight = NULL, callToo
   } else {
     if (ndata(weight) != 1) stop("Weight must have exactly one element in data dimension!")
     # ensure that all countries have weights
-    if (length(setdiff(getRegions(x), getRegions(weight))) > 0) stop("Regions in x and weight do not match!")
-    if (length(setdiff(getYears(x), getYears(weight))) > 0) stop("Years in x and weight do not match!")
-    weight <- weight[getRegions(x), getYears(x), ]
+    if (length(setdiff(getItems(x, dim = 1.1), getItems(weight, dim = 1.1))) > 0) {
+      stop("Regions in x and weight do not match!")
+    }
+    if (length(setdiff(getYears(x), getYears(weight))) > 0) {
+      stop("Years in x and weight do not match!")
+    }
+    weight <- weight[getItems(x, dim = 1.1), getYears(x), ]
   }
 
   # fill missing countries
@@ -70,7 +76,7 @@ toolFillWithRegionAvg <- function(x, valueToReplace = NA, weight = NULL, callToo
 
   # get default mapping if no mapping is defined
   if (is.null(regionmapping)) {
-    map <- toolGetMapping(getConfig("regionmapping"), "regional")
+    map <- toolGetMapping("regionmappingH12.csv", where = "madrat")
   } else {
     map <- regionmapping
   }
@@ -78,15 +84,15 @@ toolFillWithRegionAvg <- function(x, valueToReplace = NA, weight = NULL, callToo
   # container for new values
   xNew <- as.magpie(x)
 
-  aboveThreshold <- NULL
+  aboveThreshold <- list(warning = list(), note = list())
   replace <- NULL
 
   # computation of regional averages and replacing
   for (regi in unique(map$RegionCode)) {
     cRegi <- map$CountryCode[map$RegionCode == regi]
-    cRegi <- intersect(cRegi, getRegions(x))
+    cRegi <- intersect(cRegi, getItems(x, dim = 1.1))
     if (length(cRegi) == 0) next
-    for (yr in 1:nyears(x)) {
+    for (yr in seq_len(nyears(x))) {
       # filter out the countries that are NA
       naVals <- is.na(x[cRegi, yr, ])
       # if no NAs -> jump to next iteration
@@ -96,22 +102,29 @@ toolFillWithRegionAvg <- function(x, valueToReplace = NA, weight = NULL, callToo
 
       # weighted aggregation. convert to numeric to avoid issue with single country avg
       fillVal <- as.numeric(dimSums(x[cVals, yr, ] * weight[cVals, yr, ], dim = 1) / dimSums(weight[cVals, yr, ],
-        dim = 1))
+                                                                                             dim = 1))
       if (length(fillVal) == 0) fillVal <- NA
       xNew[cNA, yr, ] <- fillVal
 
       replace <- c(replace, paste0(regi, "|", yr, " (", length(cNA), "x) -> ", round(fillVal, 2)))
       if (length(cNA) / length(cRegi) > warningThreshold) {
-        aboveThreshold <- c(aboveThreshold, paste0(regi, "|", yr))
+        aboveThreshold$warning[[regi]] <- c(aboveThreshold$warning[[regi]], yr)
+      }
+      if (length(cNA) / length(cRegi) > noteThreshold) {
+        aboveThreshold$note[[regi]] <- c(aboveThreshold$note[[regi]], yr)
       }
 
     }
   }
   if (verbose) {
-    vcat(1, "Replaced missing values with regional average for: ", paste(replace, collapse = ", "))
+    message("Replaced missing values with regional average for: ", paste(replace, collapse = ", "))
   }
-  if (length(aboveThreshold) > 0) {
-    warning("More than ", 100 * warningThreshold, "% missing values for: ", paste(aboveThreshold, collapse = ", "))
+  if (length(aboveThreshold$warning) > 0) {
+    warning("More than ", 100 * warningThreshold, "% missing values for: ",
+            paste(names(aboveThreshold$warning), collapse = ", "))
+  } else if (length(aboveThreshold$note) > 0) {
+    message("More than ", 100 * noteThreshold, "% missing values for: ",
+         paste(names(aboveThreshold$note), collapse = ", "))
   }
 
   return(xNew)

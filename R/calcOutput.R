@@ -3,7 +3,7 @@
 #' Calculate a specific output for which a calculation function exists. The function is a
 #' wrapper for specific functions designed for the different possible output types.
 #'
-#'
+#' @md
 #' @param type output type, e.g. "TauTotal". A list of all available source
 #' types can be retrieved with function \code{\link{getCalculations}}.
 #' @param aggregate Boolean indicating whether output data aggregation should be performed or
@@ -13,16 +13,22 @@
 #' outputfolder as specified in the config.
 #' @param years A vector of years that should be returned. If set to NULL all
 #' available years are returned.
-#' @param round A rounding factor. If set to NULL no rounding will occur.
+#' @param round Number of decimal places to round to.  Ignored if `NULL`.  See
+#'   [`round()`] for details.
+#' @param signif Number of significant digits to round to.  Ignored if `NULL`.
+#'   See [`signif()`] for details.
 #' @param supplementary boolean deciding whether supplementary information such as weight should be
 #' returned or not. If set to TRUE a list of elements will be returned!
 #' @param append boolean deciding whether the output data should be appended in the existing file.
 #' Works only when a file name is given in the function call.
-#' @param na_warning boolean deciding whether NAs in the data set should create a warning or not
+#' @param warnNA boolean deciding whether NAs in the data set should create a warning or not
+#' @param na_warning deprecated, please use \code{warnNA} instead
 #' @param try if set to TRUE the calculation will only be tried and the script will continue even if
 #' the underlying calculation failed. If set to TRUE calculation will stop with an error in such a
 #' case. This setting will be overwritten by the global setting debug=TRUE, in which try will be
 #' always interpreted as TRUE.
+#' @param regionmapping alternative regionmapping to use for the given calculation. It will temporarily
+#' overwrite the global setting just for this calculation.
 #' @param ... Additional settings directly forwarded to the corresponding
 #' calculation function
 #' @return magpie object with the requested output data either on country or on
@@ -50,13 +56,13 @@
 #' \item \bold{max} (optional) - Maximum value which can appear in the data. If provided calcOutput
 #' will check whether there are any values above the given threshold and warn in this case
 #' \item \bold{structure.spatial} (optional) - regular expression describing the name structure of all
-#' names in the spatial dimension (e.g. "^[A-Z]\{3\}$"). Names will be checked against this regular expression and
+#' names in the spatial dimension (e.g. `"^[A-Z]\{3\}$"`). Names will be checked against this regular expression and
 #' disagreements will be reported via a warning.
 #' \item \bold{structure.temporal} (optional) - regular expression describing the name structure of all
-#' names in the temporal dimension (e.g. "^y[0-9]\{4\}$"). Names will be checked against this regular expression and
+#' names in the temporal dimension (e.g. `"^y[0-9]\{4\}$"`). Names will be checked against this regular expression and
 #' disagreements will be reported via a warning.
 #' \item \bold{structure.data} (optional) - regular expression describing the name structure of all
-#' names in the data dimension (e.g. "^[a-z]*\\\\.[a-z]*$"). Names will be checked against this regular expression and
+#' names in the data dimension (e.g. `"^[a-z]*\\\\.[a-z]*$"`). Names will be checked against this regular expression and
 #' disagreements will be reported via a warning.
 #' \item \bold{aggregationFunction} (optional | default = toolAggregate) - Function to be used to
 #' aggregate data from country to regions. The function must have the argument \code{x} for
@@ -66,6 +72,17 @@
 #' to the aggregation function. In addition to the arguments set here, the function will be
 #' supplied with the arguments \code{x}, \code{rel} and if provided/deviating from the default
 #' also \code{weight} and \code{mixed_aggregation}.
+#' \item \bold{putInPUC} (optional) boolean which decides whether this calculation should be added to a puc file
+#' which contains non-aggregated data and can be used to later on aggregate the data to resolutions of own choice.
+#' If not set \code{calcOutput} will try to determine automatically, whether a file is being required for the puc file
+#' or not, but in more complex cases (e.g. if calculations below top-level have to be run as well) this setting can
+#' be used to manually tweak the puc file list. CAUTION: Incorrect settings will cause corrupt puc files,
+#' so use this setting with extreme care and only if necessary.
+#' \item \bold{cache} (optional) boolean which decides whether a cache file should be written (if caching is active)
+#' or not. Default setting is TRUE. This can be for instance useful, if the calculation itself is quick, but
+#' the corresponding file sizes are huge. Or if the caching for the given data type does not support storage
+#' in RDS format. CAUTION: Deactivating caching for a data set which should be part of a PUC file
+#' will corrupt the PUC file. Use with care.
 #' }
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{setConfig}}, \code{\link{calcTauTotal}},
@@ -79,46 +96,31 @@
 #' getCells getYears<- is.magpie dimSums
 #' @importFrom utils packageDescription read.csv2 read.csv
 #' @importFrom digest digest
+#' @importFrom withr defer local_dir
 #' @export
 
-calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round = NULL, supplementary = FALSE, # nolint
-                       append = FALSE, na_warning = TRUE, try = FALSE, ...) { # nolint
+calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # nolint
+                       round = NULL, signif = NULL, supplementary = FALSE,
+                       append = FALSE, warnNA = TRUE, na_warning = NULL, try = FALSE, regionmapping = NULL, ...) { # nolint
   argumentValues <- c(as.list(environment()), list(...))  # capture arguments for logging
 
-  # read region mappings check settings for aggregate
-  if (aggregate != FALSE) {
-    rel <- list()
-    relNames <- NULL
-    for (r in c(getConfig("regionmapping"), getConfig("extramappings"))) {
-      rel[[r]] <- toolGetMapping(r, type = "regional", activecalc = type)
-      # rename column names from old to new convention, if necessary
-      if (any(names(rel[[r]]) == "CountryCode")) names(rel[[r]])[names(rel[[r]]) == "CountryCode"] <- "country"
-      if (any(names(rel[[r]]) == "RegionCode")) names(rel[[r]])[names(rel[[r]]) == "RegionCode"] <- "region"
-      if (is.null(rel[[r]]$global)) {
-        rel[[r]]$global <- "GLO"  # add global column
-      }
-      relNames <- union(relNames, names(rel[[r]]))
-    }
+  setWrapperActive("calcOutput")
+  setWrapperInactive("wrapperChecks")
+
+  # extract saveCache statement and deactivate wrapper
+  saveCache <- isWrapperActive("saveCache")
+  setWrapperInactive("saveCache")
+
+  if (!is.null(na_warning)) {
+    warning('Argument "na_warning" is deprecated. Please use "warnNA" instead!')
+    warnNA <- na_warning
   }
 
-  if (!is.logical(aggregate)) {
-    # rename aggregate arguments from old to new convention, if necessary
-    if (toupper(aggregate) == "GLO") aggregate <- "global"
-    if (toupper(gsub("+", "", aggregate, fixed = TRUE)) == "REGGLO") aggregate <- "region+global"
-
-    # Ignore columns in 'aggregate' that are not defined in one of the mappings.
-    # Stop if 'aggregate' contains none of the columns defined in one of the mappings.
-    aggregateSplitted <- strsplit(aggregate, "+", fixed = TRUE)[[1]]
-    commonColumns <- aggregateSplitted %in% relNames
-    if (all(!commonColumns)) {
-      stop("None of the columns given in aggregate = ", aggregate, " could be found in the mappings!")
-    } else {
-      if (any(!commonColumns)) vcat(verbosity = 0, "Omitting ", aggregateSplitted[!commonColumns],
-        " from aggregate = ", aggregate, " because it does not exists in the mappings.")
-      # Use those columns only for aggregation that exist in either of the mappings
-      aggregate <- paste0(aggregateSplitted[commonColumns], collapse = "+")
-    }
+  if (!dir.exists(getConfig("cachefolder"))) {
+      dir.create(getConfig("cachefolder"), recursive = TRUE)
   }
+
+  if (!is.null(regionmapping)) localConfig(regionmapping = regionmapping)
 
   # check type input
   if (!is.character(type)) stop("Invalid type (must be a character)!")
@@ -182,8 +184,9 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
       if (!is.null(x$weight) && nregions(x$weight) > 1) .countrycheck(getItems(x$weight, dim = 1.1), "weight")
     }
     # perform additional checks
-    if (x$class != "magpie" && (!is.null(x$min) | !is.null(x$max))) stop("Min/Max checks cannot be used in combination",
-      " with x$class!=\"magpie\"")
+    if (x$class != "magpie" && (!is.null(x$min) || !is.null(x$max))) {
+      stop("Min/Max checks cannot be used in combination with x$class!=\"magpie\"")
+    }
     if (!is.null(x$min) && any(x$x < x$min, na.rm = TRUE)) vcat(0, "Data returned by ", functionname,
       " contains values smaller than the predefined minimum",
       " (min = ", x$min, ")")
@@ -207,19 +210,23 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
     checkNameStructure(x$x, x$structure.data, 3, x$class)
 
     if (x$class == "magpie") {
-      if (na_warning) if (anyNA(x$x)) vcat(0, "Data returned by ", functionname, " contains NAs")
+      if (warnNA && anyNA(x$x)) vcat(0, "Data returned by ", functionname, " contains NAs")
       if (any(is.infinite(x$x))) vcat(0, "Data returned by ", functionname, " contains infinite values")
     }
     return(x)
   }
 
-  cwd <- getwd()
-  on.exit(setwd(cwd)) # nolint
-  if (is.null(getOption("gdt_nestinglevel"))) vcat(-2, "")
-  startinfo <- toolstartmessage(argumentValues, "+")
-  on.exit(toolendmessage(startinfo, "-"), add = TRUE)
+  if (is.null(getOption("gdt_nestinglevel"))) {
+    vcat(-2, "")
+  }
+
+  startinfo <- toolstartmessage("calcOutput", argumentValues, "+")
+  defer({
+    toolendmessage(startinfo, "-")
+  })
+
   if (!file.exists(getConfig("outputfolder"))) dir.create(getConfig("outputfolder"), recursive = TRUE)
-  setwd(getConfig("outputfolder")) # nolint
+  local_dir(getConfig("outputfolder"))
 
   functionname <- prepFunctionName(type = type, prefix = "calc", ignore = ifelse(is.null(years), "years", NA))
   extraArgs <- sapply(attr(functionname, "formals"), function(x) return(eval(parse(text = x))), simplify = FALSE) # nolint
@@ -235,18 +242,28 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
     }
   }
   if (is.null(x)) {
+    debugMode <- getConfig("debug")
+    setWrapperActive("wrapperChecks")
     vcat(2, " - execute function ", functionname, show_prefix = FALSE)
-    if (try || getConfig("debug") == TRUE) {
-      x <- try(eval(parse(text = functionname)), silent = TRUE)
+    if (try || debugMode) {
+      x <- withMadratLogging(try(eval(parse(text = functionname)), silent = TRUE))
       if ("try-error" %in% class(x)) {
         vcat(0, as.character(attr(x, "condition")))
         return(x)
       }
     } else {
-      x <- eval(parse(text = functionname))
+      x <- withMadratLogging(eval(parse(text = functionname)))
     }
+    setWrapperInactive("wrapperChecks")
     x <- .checkData(x, functionname)
     cachePut(x, prefix = "calc", type = type, args = args)
+  }
+
+  if (is.logical(x$putInPUC)) saveCache <- x$putInPUC
+
+  if (saveCache) {
+   write(cacheName(prefix = "calc", type = type, args = args),
+         file = "pucFiles", append = TRUE)
   }
 
 
@@ -296,40 +313,33 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
   date        <- .prepComment(date(), "creation date")
   note        <- .prepComment(x$note, "note")
 
-  # select fitting relation mapping
-  if (aggregate != FALSE) {
+
+  if (!isFALSE(aggregate)) {
+
+    # select fitting relation mappings and merge them if there is more than one
     if (x$class != "magpie") stop("Aggregation can only be used in combination with x$class=\"magpie\"!")
-    items <- getItems(x$x, dim = 1)
-    relFitting <- which(sapply(rel, nrow) == length(items)) # nolint
-    if (length(relFitting) == 0) stop("Neither getConfig(\"regionmapping\") nor getConfig(\"extramappings\")",
-      " contain a mapping compatible to the provided data!")
-    if (length(relFitting) > 1) {
-      warning("Multiple compatible mappings found in getConfig(\"regionmapping\")",
-        " and getConfig(\"extramappings\"). Use only the first one!")
-      relFitting <- relFitting[1]
+
+    # prepare mappings and aggregate argument for aggregation
+    map <- .getMapping(aggregate, type, x$x)
+
+    # read and check x$aggregationFunction value which provides the aggregation function
+    # to be used.
+    if (is.null(x$aggregationFunction)) x$aggregationFunction <- "toolAggregate"
+    if (!is.function(x$aggregationFunction) && !is.character(x$aggregationFunction)) {
+      stop("x$aggregationFunction must be a function!")
     }
-    rel <- rel[[relFitting]]
-  }
 
-  # read and check x$aggregationFunction value which provides the aggregation function
-  # to be used.
-  if (is.null(x$aggregationFunction)) x$aggregationFunction <- "toolAggregate"
-  if (!is.function(x$aggregationFunction) && !is.character(x$aggregationFunction)) {
-    stop("x$aggregationFunction must be a function!")
-  }
+    # read and check x$aggregationArguments value which provides additional arguments
+    # to be used in the aggregation function.
+    if (is.null(x$aggregationArguments)) x$aggregationArguments <- list()
+    if (!is.list(x$aggregationArguments)) stop("x$aggregationArguments must be a list of function arguments!")
+    # Add base arguments to the argument list (except of rel, which is added later)
+    x$aggregationArguments$x <- quote(x$x)
+    if (!is.null(x$weight)) x$aggregationArguments$weight <- quote(x$weight)
+    if (x$mixed_aggregation) x$aggregationArguments$mixed_aggregation <- TRUE # nolint
 
-  # read and check x$aggregationArguments value which provides additional arguments
-  # to be used in the aggregation function.
-  if (is.null(x$aggregationArguments)) x$aggregationArguments <- list()
-  if (!is.list(x$aggregationArguments)) stop("x$aggregationArguments must be a list of function arguments!")
-  # Add base arguments to the argument list (except of rel, which is added later)
-  x$aggregationArguments$x <- quote(x$x)
-  if (!is.null(x$weight)) x$aggregationArguments$weight <- quote(x$weight)
-  if (x$mixed_aggregation) x$aggregationArguments$mixed_aggregation <- TRUE # nolint
-
-  if (aggregate != FALSE) {
-    x$aggregationArguments$rel <- quote(rel)
-    if (aggregate != TRUE) x$aggregationArguments$to <- aggregate
+    x$aggregationArguments$rel <- quote(map$rel)
+    if (!isTRUE(aggregate)) x$aggregationArguments$to <- map$aggregate
     if (try || getConfig("debug") == TRUE) {
       x$x <- try(do.call(x$aggregationFunction, x$aggregationArguments), silent = TRUE)
       if ("try-error" %in% class(x$x)) {
@@ -349,6 +359,11 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
     if (x$class != "magpie") stop("rounding can only be used in combination with x$class=\"magpie\"!")
     x$x <- round(x$x, round)
   }
+  if (!is.null(signif)) {
+    if (x$class != "magpie")
+      stop("rounding can only be used in combination with x$class=\"magpie\"!")
+    x$x <- signif(x$x, signif)
+  }
 
   extendedComment <- c(description,
     unit,
@@ -363,7 +378,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
     attr(x$x, "comment") <- extendedComment
   }
 
-  if (is.null(file) & append) {
+  if (is.null(file) && append) {
     vcat(0, "The parameter append=TRUE works only when the file name is provided in the calcOutput() function call.")
   }
 
@@ -388,4 +403,136 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
   } else {
     return(x$x)
   }
+}
+
+
+.getMapping <- function(aggregate, type, x) { # nolint: cyclocomp_linter.
+
+  .items2rel <- function(x) {
+    rel <- data.frame(from = getItems(x, dim = 1), getItems(x, dim = 1, split = TRUE, full = TRUE))
+    return(rel)
+  }
+
+  .bilateralMapping <- function(mapping) {
+    out <- NULL
+    for (m in mapping) { # iterating over columns of a dataframe
+      tmp <- expand.grid(m, m, stringsAsFactors = FALSE)
+      out <- cbind(out, do.call(paste, args = c(tmp, list(sep = "."))))
+    }
+    out <- as.data.frame(out, stringsAsFactors = FALSE)
+    colnames(out) <- colnames(mapping)
+    return(out)
+  }
+
+  # check if x is bilateral data
+  if (dim(x)[[1]] == length(getISOlist())^2) {
+    tmp <- expand.grid(getISOlist(), getISOlist(), stringsAsFactors = FALSE)
+    bilateralElements <- paste0(tmp[[1]], ".", tmp[[2]])
+    bilateral <- setequal(bilateralElements, getItems(x, dim = 1))
+  } else {
+    bilateral <- FALSE
+  }
+
+  # create a list of all relation maps to consider
+  rel <- list()
+  relNames <- NULL
+  for (r in c(getConfig("regionmapping"), getConfig("extramappings"))) {
+    rel[[r]] <- toolGetMapping(r, type = "regional", activecalc = type)
+    # rename column names from old to new convention, if necessary
+    if (any(names(rel[[r]]) == "CountryCode")) names(rel[[r]])[names(rel[[r]]) == "CountryCode"] <- "country"
+    if (any(names(rel[[r]]) == "RegionCode")) names(rel[[r]])[names(rel[[r]]) == "RegionCode"] <- "region"
+    if (is.null(rel[[r]]$global)) {
+      rel[[r]]$global <- "GLO"  # add global column
+    }
+    # create bilateral mappings for country mappings if x is bilateral
+    if (bilateral && nrow(rel[[r]]) == length(getISOlist())) {
+      rel[[paste0(r, "bilateral")]] <- .bilateralMapping(rel[[r]])
+    }
+    relNames <- union(relNames, names(rel[[r]]))
+  }
+  # add relation map based on spatial subdimensions
+  if (!bilateral && ndim(x, dim = 1) > 1) {
+    rel[["items2rel"]] <- .items2rel(x)
+    if (is.null(rel[["items2rel"]]$global)) {
+      rel[["items2rel"]]$global <- "GLO"  # add global column
+    }
+    # remove region column (if available) to prevent a mix-up with the region column in the
+    # default country2region mapping
+    rel[["items2rel"]]$region <- NULL
+    relNames <- union(relNames, colnames(rel[["items2rel"]])[-1])
+    # add mapping to regions if countries are present
+    if (setequal(rel[["items2rel"]]$country, getISOlist())) {
+      cn <- colnames(rel[["items2rel"]])
+      rel[["items2rel"]] <- merge(rel[["items2rel"]], rel[[1]], by = "country", sort = FALSE, suffixes = c("", ".y"))
+      # sort region into 2nd place to set it as default aggregation if nothing else is specified (aggregate = TRUE)
+      rel[["items2rel"]] <- rel[["items2rel"]][union(c(cn[1], "region"), cn)]
+    } else if (isTRUE(aggregate)) {
+      stop("Cannot aggregate to regions as mapping is missing!")
+    }
+  }
+
+  if (!is.logical(aggregate)) {
+    # rename aggregate arguments from old to new convention, if necessary
+    if (toupper(aggregate) == "GLO") aggregate <- "global"
+    if (toupper(gsub("+", "", aggregate, fixed = TRUE)) == "REGGLO") aggregate <- "region+global"
+
+    # Ignore columns in 'aggregate' that are not defined in one of the mappings.
+    # Stop if 'aggregate' contains none of the columns defined in one of the mappings.
+    aggregateSplitted <- strsplit(aggregate, "+", fixed = TRUE)[[1]]
+    commonColumns <- aggregateSplitted %in% relNames
+    if (all(!commonColumns)) {
+      stop("None of the columns given in aggregate = ", aggregate, " could be found in the mappings!")
+    } else {
+      if (any(!commonColumns)) vcat(verbosity = 0, "Omitting ", aggregateSplitted[!commonColumns],
+                                    " from aggregate = ", aggregate, " because it does not exists in the mappings.")
+      # Use those columns only for aggregation that exist in either of the mappings
+      aggregate <- paste0(aggregateSplitted[commonColumns], collapse = "+")
+    }
+  }
+
+  items <- getItems(x, dim = 1)
+
+  # find mappings that have the same (setequal) items (usually ISO countries) in any column as data (items)
+  # lapply loops over the mappings, vapply loops over the columns of a mapping
+  columnHasItems <- lapply(rel, vapply, setequal, items, FUN.VALUE = logical(1))
+  # extract the names of columns that have the same items as data
+  columnNameWithItems <- lapply(columnHasItems, function(x) names(which(x)))
+
+  # mappings must have the same length AND the same items as data
+  relFitting <- which(vapply(rel, nrow, FUN.VALUE = integer(1)) == length(items) &
+                        !vapply(columnNameWithItems, identical, character(0), FUN.VALUE = logical(1)))
+
+  if (length(relFitting) == 0) stop("Neither getConfig(\"regionmapping\") nor getConfig(\"extramappings\")",
+                                    " contain a mapping compatible to the provided data!")
+
+  # keep mappings only that fit the data
+  rel <- rel[relFitting]
+
+  # if there is only one fitting mapping make rel a data frame
+  if (length(rel) == 1) {
+    rel <- rel[[1]]
+  }
+
+  # If there are more than one fitting mappings merge them. If column names from the first mapping (given via
+  # 'regionmapping') also exist in further mappings (provided via 'extramappings') keep only the columns from
+  # the first mapping
+  if (length(relFitting) > 1) {
+    itemCol <- columnNameWithItems[relFitting]
+    tmp <- rel[[1]]
+    for (i in 2:length(rel)) {
+      # merge two mappings by their column that matched the data (see above; usually the ISO countries) and
+      # append '--remove' to the names of columns in the second mapping that also exist in the first mapping.
+      tmp <- merge(tmp, rel[[i]], by.x = itemCol[[1]], by.y = itemCol[[i]], suffixes = c("", "--remove"))
+      # find index of columns that will be removed from the merge result
+      ignoredColumnsID <- grep("--remove", colnames(tmp))
+      # list names of columns that will be removed
+      ignoredColumnsName <- paste(gsub("--remove", "", colnames(tmp)[ignoredColumnsID]), collapse = ", ")
+      vcat(verbosity = 1, "Ignoring column(s) ", ignoredColumnsName, " from ", names(rel[i]),
+           " as the column(s) already exist in another mapping.", sep = " ")
+      # remove columns from the merge result tagged with '--remove'
+      tmp <- tmp[, -ignoredColumnsID]
+    }
+    rel <- tmp
+  }
+  return(list(rel = rel, aggregate = aggregate))
 }
