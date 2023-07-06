@@ -1,8 +1,8 @@
 Type: Package
 Package: madrat
 Title: May All Data be Reproducible and Transparent (MADRaT) *
-Version: 3.3.0
-Date: 2023-04-28
+Version: 3.3.4
+Date: 2023-06-29
 Authors@R: c(
     person("Jan Philipp", "Dietrich", , "dietrich@pik-potsdam.de", role = c("aut", "cre")),
     person("Lavinia", "Baumstark", , "lavinia@pik-potsdam.de", role = "aut"),
@@ -34,7 +34,7 @@ VignetteBuilder: knitr
 Encoding: UTF-8
 RoxygenNote: 7.2.3
 NeedsCompilation: no
-Packaged: 2023-05-02 10:45:13 UTC; dietrich
+Packaged: 2023-07-06 09:17:01 UTC; dietrich
 Author: Jan Philipp Dietrich [aut, cre],
   Lavinia Baumstark [aut],
   Stephen Wirth [aut],
@@ -46,4 +46,4 @@ Author: Jan Philipp Dietrich [aut, cre],
   Pascal Führlich [aut]
 Maintainer: Jan Philipp Dietrich <dietrich@pik-potsdam.de>
 Repository: CRAN
-Date/Publication: 2023-05-02 11:10:02 UTC
+Date/Publication: 2023-07-06 13:10:02 UTC
