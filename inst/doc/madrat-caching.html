@@ -12,7 +12,7 @@
 
 <meta name="author" content="Jan Philipp Dietrich" />
 
-<meta name="date" content="2023-07-06" />
+<meta name="date" content="2023-07-08" />
 
 <title>Data caching in madrat</title>
 
@@ -340,7 +340,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Data caching in madrat</h1>
 <h4 class="author">Jan Philipp Dietrich</h4>
-<h4 class="date">2023-07-06</h4>
+<h4 class="date">2023-07-08</h4>
 
 
 
@@ -355,7 +355,7 @@ computations and stores it in the cachefolder. Where this folder is
 located can be checked via</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(madrat, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">getConfig</span>(<span class="st">&quot;cachefolder&quot;</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;/tmp/RtmpTP16u8/madrat/cache/default&quot;</span></span></code></pre></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;/tmp/Rtmp1IdY9z/madrat/cache/default&quot;</span></span></code></pre></div>
 <p>When running data processing via <code>retrieveData</code> it
 currently offers two types of cache folders:
 <code>cachetype = &quot;def&quot;</code> will use a shared cachefolder in which

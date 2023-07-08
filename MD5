@@ -1,4 +1,4 @@
-941f2b46363eb3d66197768aa434718d *DESCRIPTION
+809f73f075559d2cd1f8bbc0cec79630 *DESCRIPTION
 2580a54dd292a3152bb88fcc2b67319a *LICENSE
 72a772dc1e7415f95971efebb9fe0fd5 *NAMESPACE
 8ad47522e94f1be4f0855f202a5153e8 *R/addMapping.R
@@ -40,7 +40,7 @@ de0d4d060e140ce1a8d00a44cd2de705 *R/isWrapperActive.R
 439e3123f99e7501c0f03e85d8eafe5e *R/madlapply.R
 a2b4386f74f1f5328c5ff0f95079f662 *R/madrat-package.R
 98b5e4e46d874a4ebc07c9532f9f17c6 *R/madratAttach.R
-f780d94a978b075657ee854f03d60e47 *R/metadataGFZ.R
+f06861a27dae62249605ea81c417319b *R/metadataGFZ.R
 3cbdb28ccb86e037740c506f08032732 *R/prepFunctionName.R
 92c82d19473de068f3167c10e65f5432 *R/pucAggregate.R
 e9ee9db983bb1fed503e6d2789d2375d *R/readSource.R
@@ -72,18 +72,18 @@ ada96d3286866f0cb9721a3cb443e354 *R/toolNAreplace.R
 5a42938d0ea0beb87ec28a1dd74d39c7 *R/toolstartmessage.R
 3c9c72972f2d5e010c10d4d770e5b54f *R/vcat.R
 028b8518bafea653dd5dcbebd0c07010 *R/withMadratLogging.R
-f34cb109db60ccd1bdf32f33fc0b1477 *README.md
+2c69f52f656ff7fec5093ea46cbca1e3 *README.md
 d1b861907cf3b3e467546a00ad105e54 *build/vignette.rds
 7076c99fcd6f7a24b6ea227f7091a1f0 *inst/CITATION
 275ea21bbf2aa8d603d7d0682fde5a43 *inst/doc/madrat-caching.R
 9ff7cab58ac9b1d03feb2c01b21a0578 *inst/doc/madrat-caching.Rmd
-a413699d0a6c8a0500412ec7aff1e7a1 *inst/doc/madrat-caching.html
+38b0e00e3ce76a1b36ffcd71f58c912d *inst/doc/madrat-caching.html
 0d00921a7159a0307d1782da3a2c995b *inst/doc/madrat-puc.R
 977e2c56ebbfcd83733de6f4fd7dd89d *inst/doc/madrat-puc.Rmd
-80b8fe89777b4fa04cfac33d55c33035 *inst/doc/madrat-puc.html
+d030cf26c7ac457a5e436e42c967936b *inst/doc/madrat-puc.html
 d97f6fd836df15f9213c39c524e8f4c3 *inst/doc/madrat.R
 f54501ea79cc5212f01e0c70dfc6f45d *inst/doc/madrat.Rmd
-480f8dd2d91d0749f44d9c5bc16229f0 *inst/doc/madrat.html
+32929f0b4af5c412c89ada6558223ce4 *inst/doc/madrat.html
 860bd10fd85ada9c42c66189f3d71ea1 *inst/extdata/ISOhistorical.csv
 b0c3339a98871273249b106b4e79d391 *inst/extdata/country2iso.csv
 9318d2dc64414fd7f68ed63bc7fd1798 *inst/extdata/iso_country.csv
@@ -126,7 +126,7 @@ cd71913fedc6d81edc0593cb7522290c *man/madTempDir.Rd
 9e4c6c0ccdfe5f0ac08365af447ba5a3 *man/madlapply.Rd
 8f61c48d63013bb81431be471709fc1f *man/madrat-package.Rd
 fc2139dd8d3c1f81764e97483a581ec9 *man/madratAttach.Rd
-99b3c13f8f4aba72917e52e99f760604 *man/metadataGFZ.Rd
+5fa70bb1987bcc69bd52f5ffa79ead5d *man/metadataGFZ.Rd
 d4fd3a0cfe2a7dc87c783677079200f5 *man/prepFunctionName.Rd
 0d081f4311dc6bb625c8ec33290f5444 *man/pucAggregate.Rd
 777b923268120bbddacf50bf78f90874 *man/readSource.Rd
@@ -178,7 +178,7 @@ fe797586150ec8587a686bc794d1cf59 *tests/testthat/test-getMadratInfo.R
 b8c80ef3c01c48b736324e1738e6a84a *tests/testthat/test-getNonDefaultArguments.R
 8cda0f8f92b50c993d8727f746f96fbb *tests/testthat/test-getSources.R
 d4a9d8b898d2f828c230107d9caf19bb *tests/testthat/test-isWrapperActive.R
-c9aad40824ccf6c3f9216b0a7555c7fe *tests/testthat/test-metadataGFZ.R
+ee28c8f6530ba7b37555268bb65521a4 *tests/testthat/test-metadataGFZ.R
 30a2d809968afea7159808db2fa54683 *tests/testthat/test-prepFunctionName.R
 76797ad81183e2daae949fff6e66d4d1 *tests/testthat/test-puc.R
 2797d0e92f33a3b7a9c4f82951392e09 *tests/testthat/test-readSource.R
@@ -193,7 +193,7 @@ a42fdc5bb85eae4e39c44e52fd314be3 *tests/testthat/test-toolFillWithRegionAvg.R
 d3c57f9ea40d27ddbbdb8ba4b60529fa *tests/testthat/test-toolISOhistorical.R
 6acb14e4670ad69c598c83eb4835836c *tests/testthat/test-toolOrderCells.R
 5e64b7fbd324758536f2996d952ab9fd *tests/testthat/test-toolSplitSubtype.R
-53e12bad6b88483977c1ac72256ed925 *tests/testthat/test-toolTimeAverage.R
+821333bf690d5ab0c7ee922314628aa8 *tests/testthat/test-toolTimeAverage.R
 72b3facd5cd2f9c3e639dde3faf53478 *tests/testthat/test-variousTools.R
 21a2dbd7871d6171b75ea4a35b5d065e *tests/testthat/test-vcat-withMadratLogging.R
 9ff7cab58ac9b1d03feb2c01b21a0578 *vignettes/madrat-caching.Rmd
