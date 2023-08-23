@@ -12,7 +12,7 @@
 
 <meta name="author" content="Jan Philipp Dietrich" />
 
-<meta name="date" content="2023-07-08" />
+<meta name="date" content="2023-08-23" />
 
 <title>Data caching in madrat</title>
 
@@ -340,7 +340,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Data caching in madrat</h1>
 <h4 class="author">Jan Philipp Dietrich</h4>
-<h4 class="date">2023-07-08</h4>
+<h4 class="date">2023-08-23</h4>
 
 
 
@@ -353,9 +353,9 @@ to avoid unwanted behavior.</p>
 <p>By default every read- or calc-function creates a cache file from its
 computations and stores it in the cachefolder. Where this folder is
 located can be checked via</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(madrat, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">getConfig</span>(<span class="st">&quot;cachefolder&quot;</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;/tmp/Rtmp1IdY9z/madrat/cache/default&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(madrat, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">getConfig</span>(<span class="st">&quot;cachefolder&quot;</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; [1] &quot;/tmp/Rtmpgkj15t/madrat/cache/default&quot;</span></span></code></pre></div>
 <p>When running data processing via <code>retrieveData</code> it
 currently offers two types of cache folders:
 <code>cachetype = &quot;def&quot;</code> will use a shared cachefolder in which
@@ -384,13 +384,13 @@ be potentially outdated and ignored (except for
 anyways).</p>
 <p>The fingerprint is created by looking at the dependency graph of a
 function which can be retrieved via <code>getDependencies</code>:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">getDependencies</span>(<span class="st">&quot;calcTauTotal&quot;</span>, <span class="at">packages =</span> <span class="st">&quot;madrat&quot;</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                func type package                       call     hash</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1           readTau read  madrat           madrat:::readTau c35a968f</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 toolSubtypeSelect tool  madrat madrat:::toolSubtypeSelect 86ae28b2</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3     toolAggregate tool  madrat     madrat:::toolAggregate 6ce6125c</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4   toolCountryFill tool  madrat   madrat:::toolCountryFill f02cc82a</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5    toolGetMapping tool  madrat    madrat:::toolGetMapping caceaf9f</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">getDependencies</span>(<span class="st">&quot;calcTauTotal&quot;</span>, <span class="at">packages =</span> <span class="st">&quot;madrat&quot;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt;                func type package                       call     hash</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; 1           readTau read  madrat           madrat:::readTau c35a968f</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; 2 toolSubtypeSelect tool  madrat madrat:::toolSubtypeSelect 86ae28b2</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; 3     toolAggregate tool  madrat     madrat:::toolAggregate 6ce6125c</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; 4   toolCountryFill tool  madrat   madrat:::toolCountryFill f02cc82a</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; 5    toolGetMapping tool  madrat    madrat:::toolGetMapping caceaf9f</span></span></code></pre></div>
 <p>The dependency graph lists all calls of <code>calc</code>,
 <code>read</code> and <code>tool</code> functions a function depends on
 (not only calls in the function itself, but also calls in the functions
@@ -398,19 +398,19 @@ which have been called in order to run the function). The fingerprinting
 function creates hashes of all these functions and all source folders
 involved in this process and combines them to one single hash which is
 the fingerprint of that specific function:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">setConfig</span>(<span class="at">verbosity =</span> <span class="dv">3</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Global configuration update:</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   verbosity: 1 -&gt; 3</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>fp <span class="ot">&lt;-</span> madrat<span class="sc">:::</span><span class="fu">fingerprint</span>(<span class="st">&quot;calcTauTotal&quot;</span>, <span class="at">details =</span> <span class="cn">TRUE</span>, <span class="at">packages =</span> <span class="st">&quot;madrat&quot;</span>)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; hash components (cba14462):</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   49fe8440 | madrat:::calcTauTotal | madrat:::calcTauTotal</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   c35a968f | madrat:::readTau | madrat:::readTau</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   36499ff9 | madrat:::sysdata$iso_cell | madrat:::sysdata$iso_cell</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   6ce6125c | madrat:::toolAggregate | madrat:::toolAggregate</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   f02cc82a | madrat:::toolCountryFill | madrat:::toolCountryFill</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   caceaf9f | madrat:::toolGetMapping | madrat:::toolGetMapping</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   86ae28b2 | madrat:::toolSubtypeSelect | madrat:::toolSubtypeSelect</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   3dd304aa | magclass:::ncells | magclass:::ncells</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">setConfig</span>(<span class="at">verbosity =</span> <span class="dv">3</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt; Global configuration update:</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt;   verbosity: 1 -&gt; 3</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>fp <span class="ot">&lt;-</span> madrat<span class="sc">:::</span><span class="fu">fingerprint</span>(<span class="st">&quot;calcTauTotal&quot;</span>, <span class="at">details =</span> <span class="cn">TRUE</span>, <span class="at">packages =</span> <span class="st">&quot;madrat&quot;</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; hash components (cba14462):</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt;   49fe8440 | madrat:::calcTauTotal | madrat:::calcTauTotal</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt;   c35a968f | madrat:::readTau | madrat:::readTau</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt;   36499ff9 | madrat:::sysdata$iso_cell | madrat:::sysdata$iso_cell</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt;   6ce6125c | madrat:::toolAggregate | madrat:::toolAggregate</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt;   f02cc82a | madrat:::toolCountryFill | madrat:::toolCountryFill</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt;   caceaf9f | madrat:::toolGetMapping | madrat:::toolGetMapping</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt;   86ae28b2 | madrat:::toolSubtypeSelect | madrat:::toolSubtypeSelect</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt;   3dd304aa | magclass:::ncells | magclass:::ncells</span></span></code></pre></div>
 <p>As a hash has the characteristic to change when its input changes, an
 unchanged hash means that also the respective function or source folder
 did not change. Hence, an identical fingerprint means that the involved
@@ -456,8 +456,8 @@ cases.</p></li>
 the fingerprinting. Control flags are comments in the functions which
 are put in quotes and start with <code>!#</code>. They can look
 like:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;!# @monitor madrat:::sysdata magclass:::ncells&quot;</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;!# @ignore  madrat:::toolAggregate&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="st">&quot;!# @monitor madrat:::sysdata magclass:::ncells&quot;</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="st">&quot;!# @ignore  madrat:::toolAggregate&quot;</span></span></code></pre></div>
 <p>Each line contains a control flag starting with the flag name (here
 <code>monitor</code> or <code>ignore</code>) and afterwards with the
 arguments of this control flag. The <code>monitor</code> flag specifies
@@ -481,33 +481,33 @@ exactly what you are doing.</p>
 </div>
 <div id="examples" class="section level2">
 <h2>Examples</h2>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">setConfig</span>(<span class="at">globalenv =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Global configuration update:</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   globalenv: FALSE -&gt; TRUE</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  readData <span class="ot">&lt;-</span> <span class="cf">function</span>() <span class="fu">return</span>(<span class="dv">1</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  readData2 <span class="ot">&lt;-</span> <span class="cf">function</span>() <span class="fu">return</span>(<span class="dv">2</span>)</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  calcExample <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    a <span class="ot">&lt;-</span> <span class="fu">readSource</span>(<span class="st">&quot;Data&quot;</span>)</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(a)</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  calcExample2 <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    a <span class="ot">&lt;-</span> <span class="fu">readSource</span>(<span class="st">&quot;Data&quot;</span>)</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="cn">FALSE</span>) a <span class="ot">&lt;-</span> <span class="fu">readSource</span>(<span class="st">&quot;Data2&quot;</span>)</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(a)</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">setConfig</span>(<span class="at">globalenv =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; Global configuration update:</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt;   globalenv: FALSE -&gt; TRUE</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  readData <span class="ot">&lt;-</span> <span class="cf">function</span>() <span class="fu">return</span>(<span class="dv">1</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  readData2 <span class="ot">&lt;-</span> <span class="cf">function</span>() <span class="fu">return</span>(<span class="dv">2</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  calcExample <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>    a <span class="ot">&lt;-</span> <span class="fu">readSource</span>(<span class="st">&quot;Data&quot;</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>    <span class="fu">return</span>(a)</span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>  }</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>  calcExample2 <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>    a <span class="ot">&lt;-</span> <span class="fu">readSource</span>(<span class="st">&quot;Data&quot;</span>)</span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>    <span class="cf">if</span> (<span class="cn">FALSE</span>) a <span class="ot">&lt;-</span> <span class="fu">readSource</span>(<span class="st">&quot;Data2&quot;</span>)</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>    <span class="fu">return</span>(a)</span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>  }</span></code></pre></div>
 <p>In this example are two source data sets and two calculation
 functions. <code>calcExample</code> only depends on
 <code>readData</code> while <code>calcExample2</code> depends on both
 data sources.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fp <span class="ot">&lt;-</span> madrat<span class="sc">:::</span><span class="fu">fingerprint</span>(<span class="st">&quot;calcExample&quot;</span>, <span class="at">details =</span> <span class="cn">TRUE</span>, <span class="at">packages =</span> <span class="st">&quot;madrat&quot;</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; hash components (d927f460):</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   741a3677 | calcExample | calcExample</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   783a5e2f | readData | readData</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  fp2 <span class="ot">&lt;-</span> madrat<span class="sc">:::</span><span class="fu">fingerprint</span>(<span class="st">&quot;calcExample2&quot;</span>, <span class="at">details =</span> <span class="cn">TRUE</span>, <span class="at">packages =</span> <span class="st">&quot;madrat&quot;</span>)</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; hash components (81a4a47d):</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   73001063 | calcExample2 | calcExample2</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   783a5e2f | readData | readData</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   fb52578f | readData2 | readData2</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>fp <span class="ot">&lt;-</span> madrat<span class="sc">:::</span><span class="fu">fingerprint</span>(<span class="st">&quot;calcExample&quot;</span>, <span class="at">details =</span> <span class="cn">TRUE</span>, <span class="at">packages =</span> <span class="st">&quot;madrat&quot;</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt; hash components (d927f460):</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt;   741a3677 | calcExample | calcExample</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt;   783a5e2f | readData | readData</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  fp2 <span class="ot">&lt;-</span> madrat<span class="sc">:::</span><span class="fu">fingerprint</span>(<span class="st">&quot;calcExample2&quot;</span>, <span class="at">details =</span> <span class="cn">TRUE</span>, <span class="at">packages =</span> <span class="st">&quot;madrat&quot;</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; hash components (81a4a47d):</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt;   73001063 | calcExample2 | calcExample2</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt;   783a5e2f | readData | readData</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt;   fb52578f | readData2 | readData2</span></span></code></pre></div>
 <p>Looking at the fingerprints this is reflected in the hash components
 of each fingerprint (please NOTE that the source folders are not hashed
 in this example as they do not exist yet. If they exist they would show
@@ -515,60 +515,60 @@ up here as well as hash components). One can see, that the hash for
 <code>readData</code> is the same in both fingerprints but as the other
 hashes differ also the resulting fingerprint for both calculations is
 different.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>readData <span class="ot">&lt;-</span> <span class="cf">function</span>() <span class="fu">return</span>(<span class="dv">99</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>fp <span class="ot">&lt;-</span> madrat<span class="sc">:::</span><span class="fu">fingerprint</span>(<span class="st">&quot;calcExample&quot;</span>, <span class="at">details =</span> <span class="cn">TRUE</span>, <span class="at">packages =</span> <span class="st">&quot;madrat&quot;</span>)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; hash components (1fd8c70c):</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   741a3677 | calcExample | calcExample</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   06f7b7ad | readData | readData</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>fp2 <span class="ot">&lt;-</span> madrat<span class="sc">:::</span><span class="fu">fingerprint</span>(<span class="st">&quot;calcExample2&quot;</span>, <span class="at">details =</span> <span class="cn">TRUE</span>, <span class="at">packages =</span> <span class="st">&quot;madrat&quot;</span>)</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; hash components (f119542e):</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   73001063 | calcExample2 | calcExample2</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   06f7b7ad | readData | readData</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   fb52578f | readData2 | readData2</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>readData <span class="ot">&lt;-</span> <span class="cf">function</span>() <span class="fu">return</span>(<span class="dv">99</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>fp <span class="ot">&lt;-</span> madrat<span class="sc">:::</span><span class="fu">fingerprint</span>(<span class="st">&quot;calcExample&quot;</span>, <span class="at">details =</span> <span class="cn">TRUE</span>, <span class="at">packages =</span> <span class="st">&quot;madrat&quot;</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt; hash components (1fd8c70c):</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt;   741a3677 | calcExample | calcExample</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt;   06f7b7ad | readData | readData</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>fp2 <span class="ot">&lt;-</span> madrat<span class="sc">:::</span><span class="fu">fingerprint</span>(<span class="st">&quot;calcExample2&quot;</span>, <span class="at">details =</span> <span class="cn">TRUE</span>, <span class="at">packages =</span> <span class="st">&quot;madrat&quot;</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt; hash components (f119542e):</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt;   73001063 | calcExample2 | calcExample2</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt;   06f7b7ad | readData | readData</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt;   fb52578f | readData2 | readData2</span></span></code></pre></div>
 <p>Changing the <code>readData</code> function changes the hash of this
 function and thereby also the fingerprints of both calc functions even
 so the hash of the calc functions itself did not change.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>readData2 <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;!# @monitor madrat:::toolAggregate&quot;</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="dv">99</span>)</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>fp <span class="ot">&lt;-</span> madrat<span class="sc">:::</span><span class="fu">fingerprint</span>(<span class="st">&quot;calcExample&quot;</span>, <span class="at">details =</span> <span class="cn">TRUE</span>, <span class="at">packages =</span> <span class="st">&quot;madrat&quot;</span>)</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; hash components (1fd8c70c):</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   741a3677 | calcExample | calcExample</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   06f7b7ad | readData | readData</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>fp2 <span class="ot">&lt;-</span> madrat<span class="sc">:::</span><span class="fu">fingerprint</span>(<span class="st">&quot;calcExample2&quot;</span>, <span class="at">details =</span> <span class="cn">TRUE</span>, <span class="at">packages =</span> <span class="st">&quot;madrat&quot;</span>)</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; hash components (866dbc39):</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   73001063 | calcExample2 | calcExample2</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   6ce6125c | madrat:::toolAggregate | madrat:::toolAggregate</span></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   06f7b7ad | readData | readData</span></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   13c681da | readData2 | readData2</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>readData2 <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>    <span class="st">&quot;!# @monitor madrat:::toolAggregate&quot;</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>    <span class="fu">return</span>(<span class="dv">99</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  }</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>fp <span class="ot">&lt;-</span> madrat<span class="sc">:::</span><span class="fu">fingerprint</span>(<span class="st">&quot;calcExample&quot;</span>, <span class="at">details =</span> <span class="cn">TRUE</span>, <span class="at">packages =</span> <span class="st">&quot;madrat&quot;</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; hash components (1fd8c70c):</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt;   741a3677 | calcExample | calcExample</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt;   06f7b7ad | readData | readData</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>fp2 <span class="ot">&lt;-</span> madrat<span class="sc">:::</span><span class="fu">fingerprint</span>(<span class="st">&quot;calcExample2&quot;</span>, <span class="at">details =</span> <span class="cn">TRUE</span>, <span class="at">packages =</span> <span class="st">&quot;madrat&quot;</span>)</span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt; hash components (866dbc39):</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt;   73001063 | calcExample2 | calcExample2</span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt;   6ce6125c | madrat:::toolAggregate | madrat:::toolAggregate</span></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&gt;   06f7b7ad | readData | readData</span></span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="co">#&gt;   13c681da | readData2 | readData2</span></span></code></pre></div>
 <p>Adding a monitor control flag in <code>readData</code> also add this
 hash component to all subsequent fingerprint calculations.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>calcExample2 <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;!# @ignore readData2&quot;</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    a <span class="ot">&lt;-</span> <span class="fu">readSource</span>(<span class="st">&quot;Data&quot;</span>)</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="cn">FALSE</span>) a <span class="ot">&lt;-</span> <span class="fu">readSource</span>(<span class="st">&quot;Data2&quot;</span>)</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(a)</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  calcExample3 <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    a <span class="ot">&lt;-</span> <span class="fu">calcOutput</span>(<span class="st">&quot;Example2&quot;</span>)</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(a)</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>fp2 <span class="ot">&lt;-</span> madrat<span class="sc">:::</span><span class="fu">fingerprint</span>(<span class="st">&quot;calcExample2&quot;</span>, <span class="at">details =</span> <span class="cn">TRUE</span>, <span class="at">packages =</span> <span class="st">&quot;madrat&quot;</span>)</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; hash components (1241df44):</span></span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   2da80525 | calcExample2 | calcExample2</span></span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   6ce6125c | madrat:::toolAggregate | madrat:::toolAggregate</span></span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   06f7b7ad | readData | readData</span></span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>fp3 <span class="ot">&lt;-</span> madrat<span class="sc">:::</span><span class="fu">fingerprint</span>(<span class="st">&quot;calcExample3&quot;</span>, <span class="at">details =</span> <span class="cn">TRUE</span>, <span class="at">packages =</span> <span class="st">&quot;madrat&quot;</span>)</span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; hash components (39276639):</span></span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   2da80525 | calcExample2 | calcExample2</span></span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   d51ac46e | calcExample3 | calcExample3</span></span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   6ce6125c | madrat:::toolAggregate | madrat:::toolAggregate</span></span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   06f7b7ad | readData | readData</span></span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   13c681da | readData2 | readData2</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>calcExample2 <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>    <span class="st">&quot;!# @ignore readData2&quot;</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>    a <span class="ot">&lt;-</span> <span class="fu">readSource</span>(<span class="st">&quot;Data&quot;</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>    <span class="cf">if</span> (<span class="cn">FALSE</span>) a <span class="ot">&lt;-</span> <span class="fu">readSource</span>(<span class="st">&quot;Data2&quot;</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>    <span class="fu">return</span>(a)</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>  }</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>  calcExample3 <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>    a <span class="ot">&lt;-</span> <span class="fu">calcOutput</span>(<span class="st">&quot;Example2&quot;</span>)</span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a>    <span class="fu">return</span>(a)</span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a>  }</span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a></span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a>fp2 <span class="ot">&lt;-</span> madrat<span class="sc">:::</span><span class="fu">fingerprint</span>(<span class="st">&quot;calcExample2&quot;</span>, <span class="at">details =</span> <span class="cn">TRUE</span>, <span class="at">packages =</span> <span class="st">&quot;madrat&quot;</span>)</span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt; hash components (1241df44):</span></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt;   2da80525 | calcExample2 | calcExample2</span></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="co">#&gt;   6ce6125c | madrat:::toolAggregate | madrat:::toolAggregate</span></span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="co">#&gt;   06f7b7ad | readData | readData</span></span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a>fp3 <span class="ot">&lt;-</span> madrat<span class="sc">:::</span><span class="fu">fingerprint</span>(<span class="st">&quot;calcExample3&quot;</span>, <span class="at">details =</span> <span class="cn">TRUE</span>, <span class="at">packages =</span> <span class="st">&quot;madrat&quot;</span>)</span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt; hash components (39276639):</span></span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="co">#&gt;   2da80525 | calcExample2 | calcExample2</span></span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a><span class="co">#&gt;   d51ac46e | calcExample3 | calcExample3</span></span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a><span class="co">#&gt;   6ce6125c | madrat:::toolAggregate | madrat:::toolAggregate</span></span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="co">#&gt;   06f7b7ad | readData | readData</span></span>
+<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="co">#&gt;   13c681da | readData2 | readData2</span></span></code></pre></div>
 <p>The <code>ignore</code> flag in <code>calcExample2</code> excludes
 <code>readData2</code> from the fingerprint calculation. But in contrast
 to the <code>monitor</code> statement this information is not forwarded
