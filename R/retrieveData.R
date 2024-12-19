@@ -6,7 +6,7 @@
 #'
 #' @param model The names of the model for which the data should be provided
 #' (e.g. "magpie").
-#' @param rev data revision which should be used/produced. Format must be compatible to
+#' @param rev data revision which should be used/produced. Will be converted to
 #' \code{\link[base]{numeric_version}}.
 #' @param dev development suffix to distinguish development versions for the same data
 #' revision. This can be useful to distinguish parallel lines of development.
@@ -63,6 +63,8 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
   setWrapperActive("saveCache")
   setWrapperInactive("wrapperChecks")
 
+  callString <- functionCallString("retrieveData", argumentValues)
+
   local_options(madratWarningsCounter = 0)
 
   if (!(cachetype %in% c("rev", "def"))) {
@@ -81,7 +83,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
     matchingCollections <- .match(getConfig("outputfolder"), "tgz", cfg$collectionName)
 
     if (length(matchingCollections) > 0) {
-      startinfo <- toolstartmessage("retrieveData", argumentValues, 0)
+      startinfo <- toolstartmessage(callString, 0)
       vcat(-2, " - data is already available and not calculated again.", fill = 300)
       toolendmessage(startinfo)
       return(invisible(file.path(getConfig("outputfolder"), matchingCollections)))
@@ -133,7 +135,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
   vcat(3, paste(c("sessionInfo:", capture.output(sessionInfo()), "\n"), collapse = "\n"))
 
   # run full* functions
-  startinfo <- toolstartmessage("retrieveData", argumentValues, 0)
+  startinfo <- toolstartmessage(callString, 0)
 
   vcat(2, " - execute function ", cfg$functionName, fill = 300, show_prefix = FALSE)
 
@@ -242,6 +244,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
   if (!is.null(cfg$fullDefault)) {
     cfg$fullNow <- modifyList(cfg$fullDefault, cfg$input, keep.null = TRUE)
     cfg$fullNow <- cfg$fullNow[names(cfg$fullDefault)]
+    cfg$fullNow <- cfg$fullNow[names(cfg$fullNow) != "..."]
   } else {
     cfg$fullNow <- list()
   }
@@ -349,28 +352,25 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
 
   vcat(3, paste(utils::capture.output({
     dummyProject <- withr::local_tempdir()
-    initRenv <- function() {
+    initHydrateSnapshotRenv <- function(requiredPackages, lockfilePath) {
       renv::init()
-      return(normalizePath(renv::paths$library()))
+      # hydrate requiredPackages into throwaway renv to ensure they can be restored from cache on this machine
+      if (utils::packageVersion("renv") >= numeric_version("0.17.0")) {
+        renv::hydrate(packages = requiredPackages, report = TRUE, prompt = FALSE)
+      } else {
+        # call without `report = TRUE, prompt = FALSE` as these were unavailable before renv 0.17.0
+        renv::hydrate(packages = requiredPackages)
+      }
+      # create an renv.lock file documenting all package versions, see renv parameter of pucAggregate
+      renv::snapshot(lockfile = file.path(lockfilePath, "renv.lock"), type = "all", prompt = FALSE)
     }
     # init renv in separate session to prevent changes to current session's libpath
-    dummyLibPath <- callr::r(initRenv, wd = dummyProject, spinner = FALSE, show = TRUE)
-
-    # hydrate requiredPackages into throwaway renv to ensure they can be restored from cache on this machine
-    # run renv::hydrate outside of callr, otherwise site library would not be used if running in renv
-    if (utils::packageVersion("renv") >= "0.17.0") {
-      renv::hydrate(packages = requiredPackages, library = dummyLibPath, project = dummyProject,
-                    report = TRUE, prompt = FALSE)
-    } else {
-      # call without `report = TRUE, prompt = FALSE` as these were unavailable before renv 0.17.0
-      renv::hydrate(packages = requiredPackages, library = dummyLibPath, project = dummyProject)
-    }
-
-    # create an renv.lock file documenting all package versions, see renv parameter of pucAggregate
-    renv::snapshot(project = dummyProject, library = dummyLibPath, prompt = FALSE,
-                   lockfile = "./renv.lock", type = "all")
+    callr::r(initHydrateSnapshotRenv, args = list(requiredPackages = requiredPackages,
+                                                  lockfilePath = normalizePath(".")),
+             wd = dummyProject, spinner = FALSE, show = TRUE, stderr = "2>&1")
 
     # (unlikely) caveat: if packages are updated while retrieveData is running a package's version
     # in the created renv.lock might not match the version used to run the full functions
   }), collapse = "\n"))
+  return(invisible(NULL))
 }

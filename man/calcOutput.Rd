@@ -17,6 +17,7 @@ calcOutput(
   na_warning = NULL,
   try = FALSE,
   regionmapping = NULL,
+  writeArgs = NULL,
   ...
 )
 }
@@ -51,12 +52,15 @@ Works only when a file name is given in the function call.}
 \item{na_warning}{deprecated, please use \code{warnNA} instead}
 
 \item{try}{if set to TRUE the calculation will only be tried and the script will continue even if
-the underlying calculation failed. If set to TRUE calculation will stop with an error in such a
+the underlying calculation failed. If set to FALSE calculation will stop with an error in such a
 case. This setting will be overwritten by the global setting debug=TRUE, in which try will be
 always interpreted as TRUE.}
 
 \item{regionmapping}{alternative regionmapping to use for the given calculation. It will temporarily
 overwrite the global setting just for this calculation.}
+
+\item{writeArgs}{a list of additional, named arguments to be supplied to
+the corresponding write function}
 
 \item{...}{Additional settings directly forwarded to the corresponding
 calculation function}

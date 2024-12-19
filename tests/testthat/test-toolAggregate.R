@@ -218,3 +218,21 @@ test_that("Edge cases work", {
   expect_silent(b <- toolAggregate(a, rel, weight = a))
   expect_setequal(getCells(b), c("NLD", "BEL", "LUX"))
 })
+
+test_that("columns with only zeros in weight produce a warning", {
+  weight <- pm
+  weight[, , ] <- 0
+  expect_warning(toolAggregate(pm, rel, weight = weight), "Weight sum is 0")
+  expect_error(toolAggregate(pm, rel, weight = weight, zeroWeight = "stop"), "Weight sum is 0")
+  expect_silent(allZero <- toolAggregate(pm, rel, weight = weight, zeroWeight = "allow"))
+  expect_true(all(allZero == 0))
+  expect_silent(setNA <- toolAggregate(pm, rel, weight = weight, zeroWeight = "setNA"))
+  expect_true(all(is.na(setNA)))
+})
+
+test_that("trivial renaming works with weight", {
+  mapping <- data.frame(a = c("A2", "B1"), b = c("C", "D"))
+  weight <- pm
+  getItems(weight, 3) <- c("C", "D")
+  expect_silent(toolAggregate(pm, mapping, from = "a", to = "b", dim = 3, weight = weight))
+})

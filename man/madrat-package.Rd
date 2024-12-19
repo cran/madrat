@@ -14,3 +14,29 @@ data caching, work-flow management an data aggregation.
 * The title is a wish not a promise. By no means we expect this package to deliver everything what is needed to
 achieve full reproducibility and transparency, but we believe that it supports efforts in this direction.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/pik-piam/madrat}
+  \item \doi{10.5281/zenodo.1115490}
+  \item Report bugs at \url{https://github.com/pik-piam/madrat/issues}
+}
+
+}
+\author{
+\strong{Maintainer}: Jan Philipp Dietrich \email{dietrich@pik-potsdam.de} (\href{https://orcid.org/0000-0002-4309-6431}{ORCID}) (Potsdam Institute for Climate Impact Research)
+
+Authors:
+\itemize{
+  \item Lavinia Baumstark \email{lavinia@pik-potsdam.de} (Potsdam Institute for Climate Impact Research)
+  \item Stephen Wirth \email{wirth@pik-potsdam.de} (Potsdam Institute for Climate Impact Research)
+  \item Anastasis Giannousakis \email{giannou@pik-potsdam.de}
+  \item Renato Rodrigues \email{Renato.Rodrigues@pik-potsdam.de} (Potsdam Institute for Climate Impact Research)
+  \item Benjamin Leon Bodirsky \email{bodirsky@pik-potsdam.de} (Potsdam Institute for Climate Impact Research)
+  \item Debbora Leip \email{leip@pik-potsdam.de} (Potsdam Institute for Climate Impact Research)
+  \item Ulrich Kreidenweis \email{kreidenweis@pik-potsdam.de}
+  \item David Klein \email{dklein@pik-potsdam.de} (Potsdam Institute for Climate Impact Research)
+  \item Pascal Sauer \email{pascal.sauer@pik-potsdam.de} (Potsdam Institute for Climate Impact Research)
+}
+
+}

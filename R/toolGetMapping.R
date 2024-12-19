@@ -4,7 +4,7 @@
 #'
 #'
 #' @param name File name of the mapping file. Supported file types are currently csv (, or ; separated), rds
-#' and rda (which needs to have the data stored with the object name "data"!). Use code{\link{toolConvertMapping}}
+#' and rda (which needs to have the data stored with the object name "data"!). Use \code{\link{toolConvertMapping}}
 #' to convert between both formats
 #' @param type Mapping type (e.g. "regional", "cell", or "sectoral"). Can be set to NULL if file
 #' is not stored in a type specific subfolder
@@ -30,8 +30,15 @@ toolGetMapping <- function(name, type = NULL, where = NULL,
                            error.missing = TRUE, # nolint
                            returnPathOnly = FALSE, activecalc = NULL) {
 
+  if (isWrapperActive("wrapperChecks")) {
+    for (w in c("downloadSource", "readSource", "calcOutput", "retrieveData")) {
+      if (isWrapperActive(w) && is.null(where)) {
+        warning("argument 'where' should be set when calling toolGetMapping from within a madrat function.")
+        break
+      }
+    }
+  }
   setWrapperInactive("wrapperChecks")
-
   fname <- .searchName(name = name, type = type, where = where, activecalc = activecalc)
 
   if (error.missing && !file.exists(as.character(fname))) stop('Mapping "', name, '" not found!')
@@ -88,34 +95,44 @@ toolGetMapping <- function(name, type = NULL, where = NULL,
 }
 
 .searchNamePackage <- function(name, type, packageName) {
-  tmpfname <- .typedName(name, type)
-  fname <- system.file("extdata", tmpfname, package = packageName)
-  if (fname == "" && !is_dev_package(packageName)) fname <- system.file("inst/extdata", tmpfname, package = packageName)
-  if (fname == "") fname <- system.file("extdata", strsplit(tmpfname, split = "/")[[1]][2], package = packageName)
-  if (fname == "" && !is_dev_package(packageName))
-    fname <- system.file("inst/extdata", strsplit(tmpfname, split = "/")[[1]][2], package = packageName)
-  return(fname)
+  packageLocation <- if (is_dev_package(packageName)) {
+    # If <packageName> was attached using devtools::load_all(), system.file()
+    # might or might not be shimmed with pkgload:::shim_system.file()
+    # (depending on whether madrat was loaded normally or
+    # through devtools::load_all()), and will yield different results.
+    # base::system.file() will return the directory from where <packageName> was
+    # loaded, and we append inst/ manually.
+    file.path(base::system.file(package = packageName), "inst")
+  } else {
+    # If <packageName> was attached normally, system.file() (shimmed or not)
+    # will return correct results.
+    system.file(package = packageName)
+  }
+
+  # From packageLocation/extdata, check both the subdirectory indicated by
+  # <type> and the extdata/ directory, picking the first over the second should
+  # both exist.  If nothing is found, return an empty string.
+  fname <- file.path(packageLocation, "extdata",
+                     c(.typedName(name, type), name))
+  return(c(fname[file.exists(fname)], "")[[1]])
 }
 
 .typedName <- function(name, type) {
   if (is.null(type)) {
     return(name)
   }
-  return(paste0(type, "/", name))
+  return(file.path(type, name))
 }
 
 .readMapping <- function(fname) {
   filetype <- tolower(file_ext(fname))
   if (filetype == "csv") {
-    if (grepl(pattern = ";", x = readLines(fname, 1))) {
-      return(read.csv(fname, sep = ";", stringsAsFactors = FALSE, comment.char = "*"))
-    } else {
-      return(read.csv(fname, sep = ",", stringsAsFactors = FALSE, comment.char = "*"))
-    }
+    sep <- if (grepl(pattern = ";", x = readLines(fname, 1))) ";" else ","
+    return(read.csv(fname, sep = sep, stringsAsFactors = FALSE, comment.char = "*"))
   } else if (filetype == "rda") {
     data <- NULL
     load(fname)
-    if (is.null(data)) stop(fname, " did not contain a object named \"data\"!")
+    if (is.null(data)) stop(fname, " did not contain an object named \"data\"!")
     return(data)
   } else if (filetype == "rds") {
     return(readRDS(fname))

@@ -1,22 +1,22 @@
-## ---- echo = FALSE------------------------------------------------------------
+## ----echo = FALSE-------------------------------------------------------------
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
-## ---- echo = TRUE, eval=TRUE--------------------------------------------------
+## ----echo = TRUE, eval=TRUE---------------------------------------------------
 library(madrat, quietly = TRUE)
 getConfig("cachefolder", verbose = FALSE)
 
-## ---- echo = TRUE, eval=TRUE--------------------------------------------------
+## ----echo = TRUE, eval=TRUE---------------------------------------------------
 getDependencies("calcTauTotal", packages = "madrat")
 
-## ---- echo = TRUE, eval=TRUE--------------------------------------------------
+## ----echo = TRUE, eval=TRUE---------------------------------------------------
 setConfig(verbosity = 3)
 fp <- madrat:::fingerprint("calcTauTotal", details = TRUE, packages = "madrat")
 
-## ---- echo = TRUE, eval=FALSE-------------------------------------------------
+## ----echo = TRUE, eval=FALSE--------------------------------------------------
 #  "!# @monitor madrat:::sysdata magclass:::ncells"
 #    "!# @ignore  madrat:::toolAggregate"
 
-## ---- echo = TRUE, eval=TRUE--------------------------------------------------
+## ----echo = TRUE, eval=TRUE---------------------------------------------------
 setConfig(globalenv = TRUE)
   readData <- function() return(1)
   readData2 <- function() return(2)
@@ -30,16 +30,16 @@ setConfig(globalenv = TRUE)
     return(a)
   }
 
-## ---- echo = TRUE, eval=TRUE--------------------------------------------------
+## ----echo = TRUE, eval=TRUE---------------------------------------------------
 fp <- madrat:::fingerprint("calcExample", details = TRUE, packages = "madrat")
   fp2 <- madrat:::fingerprint("calcExample2", details = TRUE, packages = "madrat")
 
-## ---- echo = TRUE, eval=TRUE--------------------------------------------------
+## ----echo = TRUE, eval=TRUE---------------------------------------------------
 readData <- function() return(99)
 fp <- madrat:::fingerprint("calcExample", details = TRUE, packages = "madrat")
 fp2 <- madrat:::fingerprint("calcExample2", details = TRUE, packages = "madrat")
 
-## ---- echo = TRUE, eval=TRUE--------------------------------------------------
+## ----echo = TRUE, eval=TRUE---------------------------------------------------
 readData2 <- function() {
     "!# @monitor madrat:::toolAggregate"
     return(99)
@@ -47,7 +47,7 @@ readData2 <- function() {
 fp <- madrat:::fingerprint("calcExample", details = TRUE, packages = "madrat")
 fp2 <- madrat:::fingerprint("calcExample2", details = TRUE, packages = "madrat")
 
-## ---- echo = TRUE, eval=TRUE--------------------------------------------------
+## ----echo = TRUE, eval=TRUE---------------------------------------------------
 
 calcExample2 <- function() {
     "!# @ignore readData2"

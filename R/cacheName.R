@@ -54,7 +54,7 @@ cacheName <- function(prefix, type, args = NULL,  graph = NULL, mode = "put", pa
   .fname <- function(prefix, type, fp, args) {
     return(paste0(getConfig("cachefolder"), "/", prefix, type, fp, args, ".rds"))
   }
-  if (mode == "put" && getConfig("forcecache") != FALSE) {
+  if (mode == "put" && !isFALSE(getConfig("forcecache"))) {
     # forcecache was at least partly active -> data consistency with
     # calculated hash is not guaranteed -> ignore hash
     return(.fname(prefix, type, "", args))
@@ -78,9 +78,14 @@ cacheName <- function(prefix, type, args = NULL,  graph = NULL, mode = "put", pa
     vcat(3, " - Search pattern ", basename(.fname(prefix, type, "-F*", args)), show_prefix = FALSE)
     return(NULL)
   }
-  if (length(files) == 1) file <- files
-  else file <- files[robustOrder(paste(file.mtime(files), basename(files)), decreasing = TRUE)][1]
-  vcat(1, " - forced cache does not match fingerprint ", fp,
-       fill = 300, show_prefix = FALSE)
+  if (length(files) == 1) {
+    file <- files
+  } else {
+    file <- files[robustOrder(paste(file.mtime(files), basename(files)), decreasing = TRUE)][1]
+  }
+  if (!isWrapperActive("pucAggregate")) {
+    vcat(1, " - forced cache does not match fingerprint ", fp,
+         fill = 300, show_prefix = FALSE)
+  }
   return(file)
 }

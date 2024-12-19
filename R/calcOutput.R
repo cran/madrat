@@ -24,11 +24,13 @@
 #' @param warnNA boolean deciding whether NAs in the data set should create a warning or not
 #' @param na_warning deprecated, please use \code{warnNA} instead
 #' @param try if set to TRUE the calculation will only be tried and the script will continue even if
-#' the underlying calculation failed. If set to TRUE calculation will stop with an error in such a
+#' the underlying calculation failed. If set to FALSE calculation will stop with an error in such a
 #' case. This setting will be overwritten by the global setting debug=TRUE, in which try will be
 #' always interpreted as TRUE.
 #' @param regionmapping alternative regionmapping to use for the given calculation. It will temporarily
 #' overwrite the global setting just for this calculation.
+#' @param writeArgs a list of additional, named arguments to be supplied to
+#' the corresponding write function
 #' @param ... Additional settings directly forwarded to the corresponding
 #' calculation function
 #' @return magpie object with the requested output data either on country or on
@@ -101,7 +103,8 @@
 
 calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # nolint
                        round = NULL, signif = NULL, supplementary = FALSE,
-                       append = FALSE, warnNA = TRUE, na_warning = NULL, try = FALSE, regionmapping = NULL, ...) { # nolint
+                       append = FALSE, warnNA = TRUE, na_warning = NULL, try = FALSE, # nolint
+                       regionmapping = NULL, writeArgs = NULL, ...) {
   argumentValues <- c(as.list(environment()), list(...))  # capture arguments for logging
 
   setWrapperActive("calcOutput")
@@ -110,6 +113,8 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
   # extract saveCache statement and deactivate wrapper
   saveCache <- isWrapperActive("saveCache")
   setWrapperInactive("saveCache")
+
+  callString <- functionCallString("calcOutput", argumentValues)
 
   if (!is.null(na_warning)) {
     warning('Argument "na_warning" is deprecated. Please use "warnNA" instead!')
@@ -126,7 +131,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
   if (!is.character(type)) stop("Invalid type (must be a character)!")
   if (length(type) != 1) stop("Invalid type (must be a single character string)!")
 
-  .checkData <- function(x, functionname) {
+  .checkData <- function(x, functionname, callString) {
     if (!is.list(x)) {
       stop("Output of function \"", functionname,
            "\" is not list of two MAgPIE objects containing the values and corresponding weights!")
@@ -212,6 +217,8 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
       vcat(0, "Data returned by ", functionname, " contains values greater than the predefined maximum",
            " (max = ", x$max, ")")
     }
+
+    # nolint start: undesirable_function_linter.
     checkNameStructure <- function(x, structure, dim, class) {
       if (class != "magpie" && !is.null(structure)) {
         stop("Structure checks cannot be used in combination with x$class!=\"magpie\"")
@@ -225,6 +232,8 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
         }
       }
     }
+    # nolint end
+
     checkNameStructure(x$x, x$structure.spatial, 1, x$class)
     checkNameStructure(x$x, x$structure.temporal, 2, x$class)
     checkNameStructure(x$x, x$structure.data, 3, x$class)
@@ -240,7 +249,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     vcat(-2, "")
   }
 
-  startinfo <- toolstartmessage("calcOutput", argumentValues, "+")
+  startinfo <- toolstartmessage(callString, "+")
   defer({
     toolendmessage(startinfo, "-")
   })
@@ -255,7 +264,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
   x <- cacheGet(prefix = "calc", type = type, args = args)
 
   if (!is.null(x)) {
-    x <- try(.checkData(x, functionname), silent = TRUE)
+    x <- try(.checkData(x, functionname, callString), silent = TRUE)
     if ("try-error" %in% class(x)) {
       vcat(2, " - cache file corrupt for ", functionname, show_prefix = FALSE)
       x <- NULL
@@ -275,7 +284,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
       x <- withMadratLogging(eval(parse(text = functionname)))
     }
     setWrapperInactive("wrapperChecks")
-    x <- .checkData(x, functionname)
+    x <- .checkData(x, functionname, callString)
     cachePut(x, prefix = "calc", type = type, args = args)
   }
 
@@ -291,48 +300,16 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     if (x$class != "magpie") stop("years argument can only be used in combination with x$class=\"magpie\"!")
     # check that years exist in provided data
     if (!all(as.integer(sub("y", "", years)) %in% getYears(x$x, as.integer = TRUE))) {
-      stop("Some years are missing in the data provided by function ", functionname, "(",
-           paste(years[!(as.integer(sub("y", "", years)) %in% getYears(x$x, as.integer = TRUE))], collapse = ", "),
-           ")!")
+      warning("Some years are missing in the data provided by function ", functionname, "(",
+              paste(years[!(as.integer(sub("y", "", years)) %in% getYears(x$x, as.integer = TRUE))],
+                    collapse = ", "), ")!")
+      years <- intersect(as.integer(sub("y", "", years)), getYears(x$x, as.integer = TRUE))
     }
     x$x <- x$x[, years, ]
     if (!is.null(x$weight)) if (nyears(x$weight) > 1) x$weight <- x$weight[, years, ]
   }
 
-  .prepComment <- function(x, name, warning = NULL) {
-    if (!is.null(x)) {
-      x[1] <- paste0(" ", name, ": ", x[1])
-      if (length(x) > 1) {
-        x[2:length(x)] <- paste0(paste(rep(" ", 3 + nchar(name)), collapse = ""), x[2:length(x)])
-      }
-    } else {
-      if (!is.null(warning)) {
-        vcat(0, warning)
-        x <- paste0(" ", name, ": not provided")
-      }
-    }
-    return(x)
-  }
-
-  .cleanComment <- function(x, remove = c("unit", "description", "comment", "origin", "creation date", "note")) {
-    # remove old descriptors
-    x <- getComment(x)
-    out <- grep(paste0("^ *(", paste(remove, collapse = "|"), "):"), x, value = TRUE, invert = TRUE)
-    if (length(out) == 0) return(NULL)
-    return(out)
-  }
-
-  unit        <- .prepComment(x$unit, "unit", paste0('Missing unit information for data set "', type, '"!'))
-  description <- .prepComment(x$description, "description",
-                              paste0('Missing description for data set "', type,
-                                     '"! Please add a description in the corresponding calc function!'))
-  comment     <- .prepComment(.cleanComment(x$x), "comment")
-  origin      <- .prepComment(paste0(gsub("\\s{2,}", " ", paste(deparse(match.call()), collapse = "")),
-                                     " (madrat ", unname(getNamespaceVersion("madrat")), " | ", x$package, ")"),
-                              "origin")
-  date        <- .prepComment(date(), "creation date")
-  note        <- .prepComment(x$note, "note")
-
+  extendedComment <- prepExtendedComment(x, type, callString)
 
   if (!isFALSE(aggregate)) {
 
@@ -385,12 +362,6 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     x$x <- signif(x$x, signif)
   }
 
-  extendedComment <- c(description,
-                       unit,
-                       note,
-                       comment,
-                       origin,
-                       date)
   if (x$class == "magpie") {
     getComment(x$x) <- extendedComment
     x$x <- clean_magpie(x$x)
@@ -402,20 +373,32 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     vcat(0, "The parameter append=TRUE works only when the file name is provided in the calcOutput() function call.")
   }
 
+  if (is.null(file) && !is.null(writeArgs)) {
+    vcat(0, "The parameter writeArgs works only when the file name is provided in the calcOutput() function call.")
+  }
+
   if (!is.null(file)) {
     if (x$class == "magpie") {
       if (grepl(".mif", file) == TRUE) {
         if (!is.null(getYears(x$x))) {
-          write.report(x$x, file = paste(getConfig("outputfolder"), file, sep = "/"), unit = x$unit, append = append)
+          do.call(write.report, c(
+            list(x$x, file = file.path(getConfig("outputfolder"), file), unit = x$unit, append = append),
+            writeArgs
+          ))
         } else {
           vcat(0, "Time dimension missing and data cannot be written to a mif-file. Skip data set!")
         }
       } else {
-        write.magpie(x$x, file_folder = getConfig("outputfolder"), file_name = file, mode = "777")
+        do.call(write.magpie, c(
+          list(x$x, file_folder = getConfig("outputfolder"), file_name = file, mode = "777"), writeArgs
+        ))
       }
     } else {
-      if ((grepl(".rds$", file) == TRUE)) saveRDS(x$x, paste(getConfig("outputfolder"), file, sep = "/"))
-      else stop("Unsupported file format (\"", file, "\") for x$class!=\"magpie\"")
+      if ((grepl(".rds$", file) == TRUE)) {
+        do.call(saveRDS, c(list(x$x, file.path(getConfig("outputfolder"), file)), writeArgs))
+      } else {
+        stop("Unsupported file format (\"", file, "\") for x$class!=\"magpie\"")
+      }
     }
   }
   if (supplementary) {

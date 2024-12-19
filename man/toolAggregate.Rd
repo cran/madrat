@@ -15,7 +15,8 @@ toolAggregate(
   partrel = FALSE,
   negative_weight = "warn",
   mixed_aggregation = FALSE,
-  verbosity = 1
+  verbosity = 1,
+  zeroWeight = "warn"
 )
 }
 \arguments{
@@ -46,7 +47,7 @@ If column \code{from} is the last column, the column before \code{from is
 used}). If data should be aggregated based on more than one column these
 columns can be specified via "+", e.g. "region+global" if the data should
 be aggregated to column regional as well as column global.
-If {rel} is missing \code{to} refers to the aggregation target dimension name.}
+If \code{rel} is missing \code{to} refers to the aggregation target dimension name.}
 
 \item{dim}{Specifying the dimension of the magclass object that should be
 (dis-)aggregated. Either specified as an integer
@@ -72,6 +73,9 @@ will lead to summation.}
 
 \item{verbosity}{Verbosity level of messages coming from the function: -1 = error,
 0 = warning, 1 = note, 2 = additional information, >2 = no message}
+
+\item{zeroWeight}{Describes how a weight sum of 0 for a category/aggregation target should be treated.
+"allow" accepts it and returns 0 (dangerous), "setNA" returns NA, "warn" throws a warning, "stop" throws an error.}
 }
 \value{
 the aggregated data in magclass format
@@ -103,9 +107,9 @@ weighting column to NA and mixed_aggregation to TRUE.
 # create example mapping
 p <- magclass::maxample("pop")
 mapping <- data.frame(from = magclass::getItems(p, dim = 1.1),
-  region = rep(c("REG1", "REG2"), 5),
-  global = "GLO")
-mapping
+                      region = rep(c("REG1", "REG2"), 5),
+                      global = "GLO")
+print(mapping)
 
 # run aggregation
 toolAggregate(p, mapping)

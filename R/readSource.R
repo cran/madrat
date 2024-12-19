@@ -25,7 +25,7 @@
 #' the data and metadata is returned instead. The temporal and data dimensionality
 #' should match the source data. The spatial dimension should either match the source data or,
 #' if the convert argument is set to TRUE, should be on ISO code country level.
-#' @author Jan Philipp Dietrich, Anastasis Giannousakis, Lavinia Baumstark, Pascal Führlich
+#' @author Jan Philipp Dietrich, Anastasis Giannousakis, Lavinia Baumstark, Pascal Sauer
 #' @seealso \code{\link{setConfig}}, \code{\link{downloadSource}}, \code{\link{readTau}}
 #' #' @note The underlying read-functions can return a magpie object or a list of information
 #' (preferred) back to \code{readSource}. In list format the object should have the following
@@ -49,15 +49,17 @@
 #' }
 #'
 #' @export
-readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_linter
+readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_linter.
                        convert = TRUE, supplementary = FALSE) {
   argumentValues <- as.list(environment())  # capture arguments for logging
 
   setWrapperActive("readSource")
   setWrapperInactive("wrapperChecks")
 
+  callString <- functionCallString("readSource", argumentValues)
+
   withr::local_dir(getConfig("mainfolder"))
-  startinfo <- toolstartmessage("readSource", argumentValues, "+")
+  startinfo <- toolstartmessage(callString, "+")
   withr::defer({
     toolendmessage(startinfo, "-")
   })
@@ -113,11 +115,8 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
   }
 
   # get data either from cache or by calculating it from source
-  .getData <- function(type, subtype, subset, args, prefix) {
-    sourcefolder <- file.path(getConfig("sourcefolder"), make.names(type))
-    if (!is.null(subtype) && file.exists(file.path(sourcefolder, make.names(subtype), "DOWNLOAD.yml"))) {
-      sourcefolder <- file.path(sourcefolder, make.names(subtype))
-    }
+  .getData <- function(type, subtype, subset, args, prefix, callString) {
+    sourcefolder <- getSourceFolder(type, subtype)
 
     xList <- .getFromCache(prefix, type, args, subtype, subset)
     if (!is.null(xList)) {
@@ -132,7 +131,7 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
       } else {
         upstreamPrefix <- "read"
       }
-      xList <- .getData(type, subtype, subset, args, upstreamPrefix)
+      xList <- .getData(type, subtype, subset, args, upstreamPrefix, callString)
       # this x is passed to correct or convert function
       x <- xList$x
     }
@@ -145,9 +144,8 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
     # run the actual read/correct/convert function
     # if prefix is correct or convert the locally defined x is passed, so check it exists
     stopifnot(prefix == "read" || exists("x"))
-    withr::with_dir(sourcefolder, {
-      x <- withMadratLogging(eval(parse(text = functionname)))
-    })
+    withr::local_dir(sourcefolder)
+    x <- withMadratLogging(eval(parse(text = functionname)))
     setWrapperInactive("wrapperChecks")
 
     # ensure we are always working with a list with entries "x" and "class"
@@ -155,6 +153,8 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
 
     # set class to "magpie" if not set
     if (is.null(xList$class)) xList$class <- "magpie"
+
+    xList$package <- attr(functionname, "pkgcomment")
 
     # assert return list has the expected entries
     if (!all(c("class", "x") %in% names(xList))) {
@@ -172,6 +172,13 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
       } else {
         vcat(2, "Non-magpie objects are not checked for ISO country level.")
       }
+    }
+
+    extendedComment <- prepExtendedComment(xList, type, callString, warn = FALSE)
+    if (xList$class == "magpie") {
+      getComment(xList$x) <- extendedComment
+    } else {
+      attr(xList$x, "comment") <- extendedComment
     }
 
     cachePut(xList, prefix = prefix, type = type, args = args)
@@ -214,8 +221,9 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
     }
   }
 
-  # Check whether source folder exists and try do download source data if it is missing
-  sourcefolder <- file.path(getConfig("sourcefolder"), make.names(type))
+  # Check whether source folder exists (ignore subtype for now) and try do download source data if it is missing
+  sourcefolder <- getSourceFolder(type, subtype = NULL)
+
   # if any DOWNLOAD.yml exists use these files as reference,
   # otherwise just check whether the sourcefolder exists
   df <- dir(sourcefolder, recursive = TRUE, pattern = "DOWNLOAD.yml")
@@ -247,7 +255,7 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
     stop('Unknown convert setting "', convert, '" (allowed: TRUE, FALSE and "onlycorrect")')
   }
 
-  xList <- .getData(type, subtype, subset, args, prefix)
+  xList <- .getData(type, subtype, subset, args, prefix, callString)
   if (magclass::is.magpie(xList$x)) {
     xList$x <- clean_magpie(xList$x)
   }
